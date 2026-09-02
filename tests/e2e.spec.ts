@@ -6,8 +6,17 @@ test.describe('Nico Perfume - Complete Multi-Page & Feature Test Suite', () => {
     await page.goto('/');
     await expect(page).toHaveTitle(/Nico Perfume/i);
     await expect(page.locator('text=NICO PERFUME').first()).toBeVisible();
-    await expect(page.locator('text=Perfumería 100% Original en Chile').first()).toBeVisible();
-    await expect(page.locator('text=Encuentra tu perfume ideal').first()).toBeVisible();
+    await expect(page.locator('h1')).toContainText('fragancia firma');
+
+    // Check Hero Gender Scroll Rail (HOMBRE, MUJER, UNISEX)
+    await expect(page.locator('text=HOMBRE').first()).toBeVisible();
+    await expect(page.locator('text=MUJER').first()).toBeVisible();
+    await expect(page.locator('text=UNISEX').first()).toBeVisible();
+
+    // Check Logo Loops (Brands Marquee)
+    await expect(page.locator('text=GIORGIO ARMANI').first()).toBeVisible();
+    await expect(page.locator('text=TOM FORD').first()).toBeVisible();
+    await expect(page.locator('text=CALVIN KLEIN').first()).toBeVisible();
 
     // Check Trust Marketing bar
     await expect(page.locator('text=100% Perfumes Originales').first()).toBeVisible();
@@ -229,6 +238,60 @@ test.describe('Nico Perfume - Complete Multi-Page & Feature Test Suite', () => {
     await expect(page.locator('text=Comparativa Olfativa Cara a Cara')).toBeVisible();
     await expect(page.locator('text=Familia Olfativa').first()).toBeVisible();
     await page.locator('button[aria-label="Cerrar comparador"]').click();
+  });
+
+  test('12. Dedicated Product Page (/producto/[slug]) & Schema.org JSON-LD Verification', async ({ page }) => {
+    // Navigate directly to top perfume page
+    await page.goto('/producto/afnan-9-pm-edp-100ml-black-hombre');
+
+    // Title & Brand
+    await expect(page.locator('h1')).toContainText('Afnan 9 PM');
+    await expect(page.locator('text=CASA OLFATIVA: Afnan')).toBeVisible();
+    await expect(page.locator('text=Batch Code Verificado')).toBeVisible();
+    await expect(page.locator('text=100% Original Sellado')).toBeVisible();
+
+    // Verify Olfactory Pyramid Tabs
+    await expect(page.locator('text=Pirámide Olfativa').first()).toBeVisible();
+    await expect(page.locator('text=1. Salida (Top Notes)')).toBeVisible();
+    await expect(page.locator('text=2. Corazón (Heart Notes)')).toBeVisible();
+    await expect(page.locator('text=3. Fondo (Base Notes)')).toBeVisible();
+
+    // Click Performance Tab
+    await page.locator('button:has-text("Rendimiento & Estela")').click();
+    await expect(page.locator('text=Métricas de Fijación & Estela')).toBeVisible();
+    await expect(page.locator('text=Duración en Piel')).toBeVisible();
+
+    // Verify Schema.org JSON-LD Script tag
+    const jsonLdScripts = await page.locator('script[type="application/ld+json"]').all();
+    expect(jsonLdScripts.length).toBeGreaterThanOrEqual(2);
+
+    const productSchemaRaw = await jsonLdScripts[0].textContent();
+    const productSchema = JSON.parse(productSchemaRaw || '{}');
+    expect(productSchema['@type']).toBe('Product');
+    expect(productSchema.name).toContain('Afnan 9 PM');
+    expect(productSchema.offers.priceCurrency).toBe('CLP');
+    expect(productSchema.offers.price).toBe(39000);
+
+    // Format Selector and Add to Cart
+    await page.locator('button:has-text("Decant Premium")').click();
+    await expect(page.locator('button:has-text("Agregar a la Bolsa")')).toBeVisible();
+    await page.locator('button:has-text("Agregar a la Bolsa")').click();
+
+    // Cart drawer should open
+    await expect(page.locator('text=Bolsa de Fragancias')).toBeVisible();
+    await page.locator('button[aria-label="Cerrar bolsa"]').click();
+  });
+
+  test('13. SEO Sitemap and Robots endpoints', async ({ page }) => {
+    // Check robots.txt
+    const robotsRes = await page.goto('/robots.txt');
+    expect(robotsRes?.status()).toBe(200);
+    const robotsText = await page.content();
+    expect(robotsText).toContain('sitemap.xml');
+
+    // Check sitemap.xml
+    const sitemapRes = await page.goto('/sitemap.xml');
+    expect(sitemapRes?.status()).toBe(200);
   });
 
 });

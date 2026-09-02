@@ -1,5 +1,6 @@
 import React from 'react';
 import { HeroBanner } from '@/components/hero-banner';
+import { BrandsMarquee } from '@/components/brands-marquee';
 import { MarketingBanner } from '@/components/marketing-banner';
 import { FragranceMatchmaker } from '@/components/fragrance-matchmaker';
 import { DupeSavingsCalculator } from '@/components/dupe-savings-calculator';
@@ -16,22 +17,25 @@ export default function HomePage() {
 
   return (
     <div className="space-y-0">
-      {/* 1. Hero Banner con Collage Humano & Llamado a la Acción */}
+      {/* 1. Hero Banner con Transición Pixelada de Fondo & Navegador de Géneros */}
       <HeroBanner />
 
-      {/* 2. Pilares de Confianza y Despacho */}
+      {/* 2. Logo Loop / Ticker de Casas de Perfumería y Diseñadores */}
+      <BrandsMarquee variant="hero" />
+
+      {/* 3. Pilares de Confianza y Despacho */}
       <MarketingBanner />
 
-      {/* 3. Los Perfumes Más Vendidos y Virales */}
+      {/* 4. Los Perfumes Más Vendidos y Virales */}
       <BestsellersSection perfumes={perfumes} />
 
-      {/* 4. Recomendador de Perfumes Similares / Clones */}
+      {/* 5. Recomendador de Perfumes Similares / Clones */}
       <FragranceMatchmaker perfumes={perfumes} />
 
-      {/* 5. Comparador de Ahorro Inteligente vs Retail */}
+      {/* 6. Comparador de Ahorro Inteligente vs Retail */}
       <DupeSavingsCalculator perfumes={perfumes} />
 
-      {/* 6. Catálogo con Filtros por Género, Marca y Ocasión */}
+      {/* 7. Catálogo con Filtros por Género, Marca y Ocasión */}
       <ProductGrid
         perfumes={perfumes}
         brands={brands}
@@ -39,7 +43,7 @@ export default function HomePage() {
         genders={genders}
       />
 
-      {/* 7. Reseñas y Testimonios de Clientes */}
+      {/* 8. Reseñas y Testimonios de Clientes */}
       <ReviewsSection />
     </div>
   );

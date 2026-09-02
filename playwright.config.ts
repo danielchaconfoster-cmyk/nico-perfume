@@ -15,7 +15,7 @@ export default defineConfig({
   webServer: {
     command: 'npx next start -p 3008',
     url: 'http://localhost:3008',
-    reuseExistingServer: false,
+    reuseExistingServer: true,
     timeout: 120000,
   },
   projects: [

@@ -1,10 +1,12 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useCart } from '@/lib/cart-context';
 import { formatCLP } from '@/lib/utils';
 import { Perfume } from '@/types/perfume';
-import { ShoppingBag } from 'lucide-react';
+import { getPerfumeSlug } from '@/lib/perfumes';
+import { ShoppingBag, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 
 interface DupeSavingsCalculatorProps {
@@ -12,17 +14,17 @@ interface DupeSavingsCalculatorProps {
 }
 
 export function DupeSavingsCalculator({ perfumes }: DupeSavingsCalculatorProps) {
-  const { addToCart } = useCart();
+  const { addToCart, setIsCartOpen } = useCart();
 
   const comparisons = [
     {
       designerName: 'Jean Paul Gaultier Ultra Male',
       designerPrice: 185000,
       designerImage: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600&auto=format&fit=crop&q=80',
-      dupeSku: 'AFNAN-9PM',
+      dupeSku: 'COS2463', // Afnan 9 PM
       dupeName: 'Afnan 9 PM Eau de Parfum (100ml)',
-      dupePrice: 38990,
-      dupeImage: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=600&auto=format&fit=crop&q=80',
+      dupePrice: 39000,
+      dupeImage: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=800&auto=format&fit=crop&q=80',
       similarity: '98% Similitud Olfativa',
       notesShared: 'Vainilla negra, Canela especiada, Manzana silvestre, Lavanda, Ámbar gris'
     },
@@ -30,9 +32,9 @@ export function DupeSavingsCalculator({ perfumes }: DupeSavingsCalculatorProps) 
       designerName: 'Creed Aventus',
       designerPrice: 380000,
       designerImage: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=600&auto=format&fit=crop&q=80',
-      dupeSku: 'AL-HARAMAIN-AMBER-OUD',
-      dupeName: 'Al Haramain Amber Oud Gold Edition (120ml)',
-      dupePrice: 62990,
+      dupeSku: 'COS2943',
+      dupeName: 'Afnan Zimaya Red Carpet Paragon EDP (100ml)',
+      dupePrice: 21200,
       dupeImage: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600&auto=format&fit=crop&q=80',
       similarity: '96% Similitud Olfativa',
       notesShared: 'Piña ahumada, Bergamota de Calabria, Ámbar, Melón, Almizcle blanco'
@@ -41,9 +43,9 @@ export function DupeSavingsCalculator({ perfumes }: DupeSavingsCalculatorProps) 
       designerName: 'Dolce & Gabbana K Eau de Parfum',
       designerPrice: 155000,
       designerImage: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=600&auto=format&fit=crop&q=80',
-      dupeSku: 'BHARARA-KING',
-      dupeName: 'Bharara King Parfum (100ml + Decant)',
-      dupePrice: 54990,
+      dupeSku: 'COS2463',
+      dupeName: 'Afnan 9 PM Black EDP (100ml)',
+      dupePrice: 39000,
       dupeImage: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=600&auto=format&fit=crop&q=80',
       similarity: '99% Similitud Olfativa',
       notesShared: 'Naranja sanguina, Bayas de enebro, Cedro de Virginia, Vainilla real'
@@ -51,9 +53,10 @@ export function DupeSavingsCalculator({ perfumes }: DupeSavingsCalculatorProps) 
   ];
 
   const handleBuyDupe = (sku: string) => {
-    const item = perfumes.find((p: Perfume) => p.sku === sku);
+    const item = perfumes.find((p: Perfume) => p.sku.toLowerCase() === sku.toLowerCase() || p.id === sku);
     if (item) {
       addToCart(item);
+      setIsCartOpen(true);
     }
   };
 
@@ -82,6 +85,10 @@ export function DupeSavingsCalculator({ perfumes }: DupeSavingsCalculatorProps) 
           {comparisons.map((c, idx) => {
             const savings = c.designerPrice - c.dupePrice;
             const savingsPercent = Math.round((savings / c.designerPrice) * 100);
+            const matchedPerfume = perfumes.find(
+              (p: Perfume) => p.sku.toLowerCase() === c.dupeSku.toLowerCase() || p.name.toLowerCase().includes('9 pm')
+            );
+            const slug = matchedPerfume ? getPerfumeSlug(matchedPerfume) : '';
 
             return (
               <div
@@ -121,22 +128,47 @@ export function DupeSavingsCalculator({ perfumes }: DupeSavingsCalculatorProps) 
                   <div className="lg:col-span-4 p-4 rounded-xl bg-zinc-900/80 border border-gold-500/30 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-16 h-20 relative rounded-lg overflow-hidden bg-zinc-950 shrink-0 border border-zinc-800">
-                        <Image src={c.dupeImage} alt={c.dupeName} fill className="object-cover" />
+                        {slug ? (
+                          <Link href={`/producto/${slug}`}>
+                            <Image src={c.dupeImage} alt={c.dupeName} fill className="object-cover hover:scale-105 transition" />
+                          </Link>
+                        ) : (
+                          <Image src={c.dupeImage} alt={c.dupeName} fill className="object-cover" />
+                        )}
                       </div>
                       <div className="min-w-0">
                         <span className="text-[9px] uppercase font-bold text-gold-400 tracking-wider">Joya de Autor</span>
-                        <h4 className="text-xs font-semibold text-zinc-100 truncate mt-0.5">{c.dupeName}</h4>
+                        <h4 className="text-xs font-semibold text-zinc-100 truncate mt-0.5">
+                          {slug ? (
+                            <Link href={`/producto/${slug}`} className="hover:text-gold-300 transition">
+                              {c.dupeName}
+                            </Link>
+                          ) : (
+                            c.dupeName
+                          )}
+                        </h4>
                         <p className="text-base font-serif font-bold text-gold-300 mt-1">{formatCLP(c.dupePrice)}</p>
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => handleBuyDupe(c.dupeSku)}
-                      className="p-3 rounded-xl bg-zinc-100 hover:bg-gold-400 text-black shrink-0 transition"
-                      title="Llevar fragancia"
-                    >
-                      <ShoppingBag className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {slug && (
+                        <Link
+                          href={`/producto/${slug}`}
+                          className="p-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition"
+                          title="Ver ficha del perfume"
+                        >
+                          <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      )}
+                      <button
+                        onClick={() => handleBuyDupe(c.dupeSku)}
+                        className="p-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-black transition active:scale-95 shadow-lg shadow-gold-500/20"
+                        title="Añadir a la bolsa"
+                      >
+                        <ShoppingBag className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
                 </div>

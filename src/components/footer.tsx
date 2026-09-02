@@ -2,11 +2,16 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { BrandsMarquee } from './brands-marquee';
 import { PhoneCall, Mail, MapPin, ShieldCheck, Truck, MessageCircle } from 'lucide-react';
 
 export function Footer() {
   return (
     <footer className="bg-[#050508] border-t border-zinc-800 text-zinc-400 text-xs">
+      {/* 1. Infinite Logo Loop Ribbon for Prestigious Brands */}
+      <BrandsMarquee variant="footer" />
+
+      {/* 2. Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           
@@ -77,17 +82,17 @@ export function Footer() {
             </h3>
             <ul className="space-y-2.5">
               <li>
-                <Link href="/catalogo" className="hover:text-gold-400 transition">
+                <Link href="/catalogo?genero=Hombre" className="hover:text-gold-400 transition">
                   Perfumes para Hombre
                 </Link>
               </li>
               <li>
-                <Link href="/catalogo" className="hover:text-gold-400 transition">
+                <Link href="/catalogo?genero=Mujer" className="hover:text-gold-400 transition">
                   Perfumes para Mujer
                 </Link>
               </li>
               <li>
-                <Link href="/catalogo" className="hover:text-gold-400 transition">
+                <Link href="/catalogo?genero=Unisex" className="hover:text-gold-400 transition">
                   Perfumes Unisex
                 </Link>
               </li>

@@ -1,21 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useCart } from '@/lib/cart-context';
 import { formatCLP } from '@/lib/utils';
+import { getPerfumeSlug } from '@/lib/perfumes';
 import {
   X,
   ShoppingBag,
   Heart,
   Scale,
   Star,
-  Sparkles,
   ShieldCheck,
   Truck,
   Layers,
   MessageSquare,
   Clock,
-  Wind
+  Wind,
+  ArrowRight
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -35,6 +37,7 @@ export function ProductModal() {
 
   const p = quickViewPerfume;
   const inWishlist = isInWishlist(p.id);
+  const slug = getPerfumeSlug(p);
 
   const discountPercent =
     p.originalPrice > p.price
@@ -103,17 +106,27 @@ export function ProductModal() {
             <div>
               {/* Brand & Category */}
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-bold uppercase tracking-widest text-gold-400">
+                <Link
+                  href={`/catalogo?marca=${encodeURIComponent(p.brand)}`}
+                  onClick={closeQuickView}
+                  className="text-xs font-bold uppercase tracking-widest text-gold-400 hover:text-gold-300 transition"
+                >
                   {p.brand}
-                </span>
-                <span className="text-xs text-zinc-400">
+                </Link>
+                <span className="text-xs text-zinc-400 font-mono">
                   SKU: {p.sku}
                 </span>
               </div>
 
               {/* Title */}
               <h2 className="text-xl sm:text-2xl font-serif text-zinc-100 font-normal mt-1">
-                {p.name}
+                <Link
+                  href={`/producto/${slug}`}
+                  onClick={closeQuickView}
+                  className="hover:text-gold-300 transition"
+                >
+                  {p.name}
+                </Link>
               </h2>
 
               {/* Rating & Family */}
@@ -239,6 +252,16 @@ export function ProductModal() {
                   <Scale className="w-4 h-4" />
                 </button>
               </div>
+
+              {/* View Full Product Page Link */}
+              <Link
+                href={`/producto/${slug}`}
+                onClick={closeQuickView}
+                className="w-full py-2.5 px-4 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 hover:border-gold-500/40 text-gold-300 text-xs font-semibold flex items-center justify-center gap-2 transition"
+              >
+                <span>Ver Ficha Completa & Pirámide Detallada</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
 
               {/* Direct WhatsApp Consultation */}
               <button

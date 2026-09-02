@@ -1,11 +1,13 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { Perfume } from '@/types/perfume';
 import { useCart } from '@/lib/cart-context';
 import { formatCLP } from '@/lib/utils';
-import { Heart, Scale, ShoppingBag, Eye, Star, Sparkles } from 'lucide-react';
-import Image from 'next/image';
+import { getPerfumeSlug } from '@/lib/perfumes';
+import { Heart, Scale, ShoppingBag, Eye, Star } from 'lucide-react';
 
 interface ProductCardProps {
   perfume: Perfume;
@@ -14,6 +16,7 @@ interface ProductCardProps {
 export function ProductCard({ perfume }: ProductCardProps) {
   const { addToCart, openQuickView, toggleWishlist, isInWishlist, addToCompare } = useCart();
   const inWishlist = isInWishlist(perfume.id);
+  const slug = getPerfumeSlug(perfume);
 
   const discountPercent = perfume.originalPrice > perfume.price
     ? Math.round(((perfume.originalPrice - perfume.price) / perfume.originalPrice) * 100)
@@ -23,28 +26,30 @@ export function ProductCard({ perfume }: ProductCardProps) {
     <div className="group relative rounded-2xl bg-zinc-900/40 border border-zinc-800 hover:border-gold-500/40 p-4 transition-all duration-300 flex flex-col justify-between hover:shadow-xl hover:shadow-black/50 hover:-translate-y-1">
       {/* Top Image Container */}
       <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-zinc-950/80 mb-3.5 border border-zinc-850">
-        <Image
-          src={perfume.image}
-          alt={perfume.name}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+        <Link href={`/producto/${slug}`} className="block w-full h-full">
+          <Image
+            src={perfume.image}
+            alt={perfume.fullName || perfume.name}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </Link>
 
         {/* Discount Badge */}
         {discountPercent > 0 && (
-          <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-rose-950/90 border border-rose-500/40 text-rose-300 text-[10px] font-bold tracking-wider">
+          <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-rose-950/90 border border-rose-500/40 text-rose-300 text-[10px] font-bold tracking-wider pointer-events-none">
             -{discountPercent}%
           </span>
         )}
 
         {/* Concentration Pill */}
-        <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-sm border border-zinc-700 text-zinc-300 text-[9px] font-semibold uppercase tracking-wider">
+        <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-sm border border-zinc-700 text-zinc-300 text-[9px] font-semibold uppercase tracking-wider pointer-events-none">
           {perfume.concentration}
         </span>
 
         {/* Quick Action Floating Icons */}
-        <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5 opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5 opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
           <button
             onClick={() => toggleWishlist(perfume.id)}
             className={`p-2 rounded-full backdrop-blur-md border transition ${
@@ -81,20 +86,22 @@ export function ProductCard({ perfume }: ProductCardProps) {
         <div>
           {/* Brand & Gender */}
           <div className="flex items-center justify-between gap-1 text-[11px] mb-1">
-            <span className="font-bold text-gold-400 uppercase tracking-wider truncate">
+            <Link
+              href={`/catalogo?marca=${encodeURIComponent(perfume.brand)}`}
+              className="font-bold text-gold-400 uppercase tracking-wider truncate hover:text-gold-300 transition"
+            >
               {perfume.brand}
-            </span>
+            </Link>
             <span className="text-zinc-400 font-light text-[10px] shrink-0">
               {perfume.gender} • {perfume.volume}ml
             </span>
           </div>
 
-          {/* Perfume Name */}
-          <h3
-            onClick={() => openQuickView(perfume)}
-            className="text-sm font-medium text-zinc-100 group-hover:text-gold-300 transition line-clamp-2 cursor-pointer leading-snug"
-          >
-            {perfume.name}
+          {/* Perfume Name Link */}
+          <h3 className="text-sm font-medium text-zinc-100 group-hover:text-gold-300 transition line-clamp-2 leading-snug">
+            <Link href={`/producto/${slug}`} className="hover:underline">
+              {perfume.name}
+            </Link>
           </h3>
 
           {/* Olfactory Family Pill */}
