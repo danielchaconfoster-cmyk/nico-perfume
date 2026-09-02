@@ -55,17 +55,17 @@ export function FragranceQuiz({ perfumes }: FragranceQuizProps) {
         
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <p className="text-[11px] font-medium tracking-[0.3em] text-zinc-400 uppercase mb-3">
-            Diagnóstico de Preferencias Olfativas
+          <p className="text-xs font-semibold tracking-wider text-gold-400 uppercase mb-2">
+            Recomendador Rápido
           </p>
 
-          <h2 className="font-serif text-3xl sm:text-5xl font-light text-zinc-100 leading-[1.2]">
-            Descubre tu Firma Personal <br />
-            <span className="italic text-gold-gradient font-normal">En Cuatro Pasos Simples.</span>
+          <h2 className="font-serif text-3xl sm:text-4xl font-normal text-zinc-100 leading-[1.2]">
+            Test de Perfume: <br />
+            <span className="text-gold-gradient font-light">Encuentra tu aroma en 4 preguntas.</span>
           </h2>
 
-          <p className="mt-4 text-sm text-zinc-400 font-light leading-relaxed">
-            Responde las preguntas de nuestro test sensorial para filtrar entre las opciones con mejor calificación y rendimiento en piel.
+          <p className="mt-3 text-sm text-zinc-300 font-light leading-relaxed">
+            Selecciona tus gustos y te recomendaremos los mejores perfumes originales según ocasión y presupuesto.
           </p>
         </div>
 

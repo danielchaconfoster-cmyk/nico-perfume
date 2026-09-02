@@ -2,126 +2,142 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, ShieldCheck, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
 export function HeroBanner() {
   return (
-    <section className="relative overflow-hidden bg-[#060608] border-b border-zinc-900 min-h-[580px] lg:min-h-[640px] flex items-center">
-      {/* Subtle Ambient Light */}
-      <div className="absolute top-1/3 left-10 w-[500px] h-[350px] bg-amber-600/5 blur-[140px] pointer-events-none rounded-full" />
-      <div className="absolute -bottom-10 right-1/4 w-[400px] h-[300px] bg-zinc-800/20 blur-[120px] pointer-events-none rounded-full" />
+    <section className="relative overflow-hidden bg-[#07070b] border-b border-zinc-800 py-12 lg:py-16">
+      {/* Subtle Warm Ambient Glow */}
+      <div className="absolute top-1/4 left-10 w-96 h-96 bg-amber-600/10 blur-[130px] pointer-events-none rounded-full" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-zinc-700/10 blur-[130px] pointer-events-none rounded-full" />
 
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
-          {/* Left Column: 50% Editorial Luxury Typography */}
-          <div className="lg:col-span-6 space-y-6 lg:space-y-7 text-left z-10">
+          {/* Left Column: Clear, Friendly & Customer-Centric */}
+          <div className="lg:col-span-5 space-y-6 text-left">
             
-            {/* Small Refined Category Kicker */}
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-gold-400" />
-              <span className="text-[11px] font-medium tracking-[0.3em] text-gold-400 uppercase font-sans">
-                Haute Parfumerie • Santiago
-              </span>
+            {/* Direct Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-xs text-gold-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span>Perfumería 100% Original en Chile</span>
             </div>
 
-            {/* Giant Elegant Editorial Serif Headline */}
-            <h1 className="font-serif text-4xl sm:text-6xl lg:text-[62px] font-light text-zinc-100 leading-[1.12] tracking-tight">
-              El Arte del Aroma, <br />
-              <span className="italic text-gold-gradient font-normal">
-                En su Máxima Expresión.
-              </span>
+            {/* Clear, Balanced Headline (Not Overstated) */}
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-zinc-100 font-normal leading-[1.2]">
+              Encuentra tu perfume ideal, <br />
+              <span className="text-gold-gradient font-light">al mejor precio.</span>
             </h1>
 
-            {/* 2-Line Refined Subtitle */}
-            <p className="text-sm sm:text-base text-zinc-400 font-light leading-relaxed max-w-lg">
-              Extractos árabes de fijación 14h, perfumería de autor y nuestro laboratorio interactivo de fragancias gemelas para encontrar tu aroma ideal.
+            {/* Natural Description */}
+            <p className="text-sm sm:text-base text-zinc-300 font-light leading-relaxed">
+              Más de 1.300 perfumes originales, fragancias árabes virales y alternativas idénticas para oler increíble todos los días sin pagar de más.
             </p>
 
-            {/* Haute Couture Actions */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
+            {/* Single Clear Action Button */}
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Link
                 href="/catalogo"
-                className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-zinc-100 hover:bg-gold-400 text-black font-medium text-xs tracking-[0.18em] uppercase transition duration-300 shadow-md group"
+                className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-zinc-100 hover:bg-gold-400 text-black font-semibold text-xs tracking-wider uppercase transition shadow-lg shadow-white/5 active:scale-95"
               >
-                <span>Explorar Colección</span>
-                <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <span>Ver Catálogo</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
 
               <Link
                 href="/fragancias-gemelas"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 text-xs font-medium tracking-[0.15em] uppercase hover:border-gold-500/40 transition"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 text-xs font-medium tracking-wider uppercase transition"
               >
-                <span>Fragancias Gemelas</span>
-                <ArrowRight className="w-3.5 h-3.5 text-gold-400" />
+                <span>Perfumes Similares</span>
               </Link>
             </div>
 
-            {/* Minimalist Brand Houses Strip */}
-            <div className="pt-6 lg:pt-8 border-t border-zinc-900/90">
-              <p className="text-[10px] tracking-[0.25em] uppercase text-zinc-500 font-medium mb-3">
-                Casas Olfativas & Colecciones Oficiales
-              </p>
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-serif tracking-[0.15em] text-zinc-400 uppercase">
-                <span className="hover:text-zinc-200 transition">Afnan</span>
-                <span className="text-zinc-700">•</span>
-                <span className="hover:text-zinc-200 transition">Al Haramain</span>
-                <span className="text-zinc-700">•</span>
-                <span className="hover:text-zinc-200 transition">Bharara</span>
-                <span className="text-zinc-700">•</span>
-                <span className="hover:text-zinc-200 transition">Lattafa</span>
-                <span className="text-zinc-700">•</span>
-                <span className="hover:text-zinc-200 transition">Creed</span>
-              </div>
+            {/* Simple Trust Points */}
+            <div className="pt-4 border-t border-zinc-800/80 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-zinc-400">
+              <span className="flex items-center gap-1.5 text-zinc-300">
+                <Check className="w-4 h-4 text-emerald-400" />
+                <span>Perfumes 100% Originales</span>
+              </span>
+              <span className="flex items-center gap-1.5 text-zinc-300">
+                <Check className="w-4 h-4 text-emerald-400" />
+                <span>Envíos a todo Chile</span>
+              </span>
+              <span className="flex items-center gap-1.5 text-zinc-300">
+                <Check className="w-4 h-4 text-emerald-400" />
+                <span>Compra protegida</span>
+              </span>
             </div>
 
           </div>
 
-          {/* Right Column: 50% Full-Bleed Studio Photography Composition */}
-          <div className="lg:col-span-6 relative">
-            <div className="relative w-full h-[400px] sm:h-[500px] lg:h-[540px] rounded-3xl overflow-hidden bg-zinc-950 border border-zinc-850 shadow-2xl group">
+          {/* Right Column: Dynamic Human Lifestyle Collage (People applying perfume, diversity, spray mist) */}
+          <div className="lg:col-span-7">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
               
-              {/* Main Studio Image */}
-              <Image
-                src="https://images.unsplash.com/photo-1594035910387-fea47794261f?w=1200&auto=format&fit=crop&q=85"
-                alt="Alta Perfumería de Autor Nico Perfume"
-                fill
-                priority
-                className="object-cover object-center group-hover:scale-105 transition-transform duration-1000 opacity-90"
-              />
-
-              {/* Atmospheric Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-
-              {/* Floating Editorial Badge (Top Right) */}
-              <div className="absolute top-5 right-5 px-3.5 py-1.5 rounded-full bg-[#050507]/80 backdrop-blur-md border border-zinc-800 text-zinc-300 text-[10px] tracking-[0.2em] uppercase font-medium">
-                Batch Code Verificado
+              {/* Photo 1: Woman applying perfume on neck */}
+              <div className="relative h-60 sm:h-72 rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 group shadow-lg">
+                <Image
+                  src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&auto=format&fit=crop&q=80"
+                  alt="Mujer disfrutando fragancia"
+                  fill
+                  priority
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <span className="absolute bottom-3 left-3 text-[11px] font-medium text-zinc-200">
+                  Aromas para Mujer
+                </span>
               </div>
 
-              {/* Floating Curated Showcase (Bottom Left) */}
-              <div className="absolute bottom-6 inset-x-6 p-5 rounded-2xl bg-[#08080c]/85 backdrop-blur-md border border-zinc-800 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-semibold text-gold-400 uppercase tracking-[0.2em] block">
-                    Extractos de Larga Fijación
-                  </span>
-                  <h3 className="font-serif text-base sm:text-lg text-zinc-100 font-normal mt-0.5">
-                    Colección Árabe & Diseñador
-                  </h3>
-                  <p className="text-xs text-zinc-400 font-light mt-0.5">
-                    12 a 14 horas de proyección en piel
-                  </p>
-                </div>
-
-                <Link
-                  href="/decants"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-gold-400 hover:text-black text-zinc-300 text-[11px] font-medium tracking-wider uppercase border border-zinc-800 transition shrink-0"
-                >
-                  <span>Probar Decant</span>
-                  <ArrowRight className="w-3 h-3" />
-                </Link>
+              {/* Photo 2: Elegant Man applying fresh scent */}
+              <div className="relative h-60 sm:h-72 rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 group shadow-lg">
+                <Image
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80"
+                  alt="Hombre aplicando perfume"
+                  fill
+                  priority
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <span className="absolute bottom-3 left-3 text-[11px] font-medium text-zinc-200">
+                  Aromas para Hombre
+                </span>
               </div>
 
+              {/* Photo 3: Spray mist & luxury bottle details (Span 2 on mobile) */}
+              <div className="col-span-2 sm:col-span-1 relative h-48 sm:h-72 rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 group shadow-lg">
+                <Image
+                  src="https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&auto=format&fit=crop&q=80"
+                  alt="Frasco y rocío de perfume"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <span className="absolute bottom-3 left-3 text-[11px] font-medium text-gold-300">
+                  Joyas Árabes
+                </span>
+              </div>
+
+            </div>
+
+            {/* Bottom mini showcase banner */}
+            <div className="mt-3.5 p-4 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold text-zinc-100">
+                  ¿Buscas un perfume en específico?
+                </p>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  Revisa nuestro buscador o usa el test rápido en 30 segundos.
+                </p>
+              </div>
+
+              <Link
+                href="/sommelier-quiz"
+                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium transition shrink-0"
+              >
+                Hacer Test
+              </Link>
             </div>
           </div>
 
