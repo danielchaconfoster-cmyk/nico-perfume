@@ -205,12 +205,12 @@ test.describe('Nico Perfume - Complete Multi-Page & Feature Test Suite', () => {
   test('10. Integrated Shipping Info Form in Cart Drawer', async ({ page }) => {
     await page.goto('/catalogo');
 
-    // Add product to cart first so shipping tabs are available
+    // Add product to cart first so shipping form is available
     const addCartBtn = page.locator('button:has-text("Agregar a Bolsa")').first();
     await addCartBtn.click();
 
-    // Switch to Shipping Tab
-    await page.locator('button:has-text("2. Datos de Envío")').click();
+    // Open Shipping Form Accordion
+    await page.locator('button:has-text("Agregar datos de despacho")').click();
 
     // Fill shipping details
     const nameInput = page.locator('input[placeholder*="Nicolás Morales"]');
