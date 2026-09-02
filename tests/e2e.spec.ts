@@ -6,8 +6,8 @@ test.describe('Nico Perfume - Complete Multi-Page & Feature Test Suite', () => {
     await page.goto('/');
     await expect(page).toHaveTitle(/Nico Perfume/i);
     await expect(page.locator('text=NICO PERFUME').first()).toBeVisible();
-    await expect(page.locator('text=Haute Parfumerie • Santiago de Chile').first()).toBeVisible();
-    await expect(page.locator('text=Aromas que Conquistan.').first()).toBeVisible();
+    await expect(page.locator('text=Haute Parfumerie • Santiago').first()).toBeVisible();
+    await expect(page.locator('text=El Arte del Aroma,').first()).toBeVisible();
 
     // Check Trust Marketing bar
     await expect(page.locator('text=100% Originales & Sellados').first()).toBeVisible();
