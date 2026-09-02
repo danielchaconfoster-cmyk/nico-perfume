@@ -5,15 +5,11 @@ import { Perfume } from '@/types/perfume';
 import { useCart } from '@/lib/cart-context';
 import { formatCLP } from '@/lib/utils';
 import {
-  CloudSun,
-  Droplets,
-  Wind,
-  Sparkles,
+  Compass,
   MapPin,
-  Flame,
   CheckCircle2,
   ShoppingBag,
-  Info
+  SlidersHorizontal
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -32,35 +28,30 @@ export function SillageWeatherApp({ perfumes }: SillageWeatherAppProps) {
   const sprayAdvice = {
     calor: {
       sprays: '3 - 4 Atomizaciones',
-      advice: 'En altas temperaturas los aceites se evaporan rápidamente y proyectan con más violencia. Aplica menos sprays para no fatigar el olfato ajeno.',
+      advice: 'En altas temperaturas los aceites se evaporan rápidamente y proyectan con más intensidad. Aplica menos sprays para no fatigar el olfato.',
       points: 'Base del cuello, parte posterior de los codos y pecho.',
-      bestFamily: 'Cítrica / Fresca',
-      avoid: 'Evitar perfumes excesivamente dulces o cueros pesados.'
+      bestFamily: 'Cítrica / Fresca'
     },
     moderado: {
       sprays: '4 - 5 Atomizaciones',
-      advice: 'Clima ideal donde casi cualquier fragancia se desempeña en su punto óptimo de fijación y estela.',
+      advice: 'Clima templado donde casi cualquier fragancia se desempeña en su punto óptimo de fijación y estela.',
       points: 'Lados del cuello, detrás de las orejas y muñecas.',
-      bestFamily: 'Aromática / Fougère',
-      avoid: 'Ninguna restricción, excelente para versátiles.'
+      bestFamily: 'Aromática / Fougère'
     },
     fresco: {
       sprays: '5 - 6 Atomizaciones',
-      advice: 'Las temperaturas frescas ralentizan la evaporación, lo que permite que las notas de fondo amaderadas y ambaradas brillen durante más de 12 horas.',
-      points: 'Cuello, clavículas, muñecas y una atomización en la ropa (abrigo o bufanda).',
-      bestFamily: 'Amaderada',
-      avoid: 'Los perfumes ultra acuáticos pueden perder algo de proyección.'
+      advice: 'Las temperaturas frescas ralentizan la evaporación, permitiendo que las notas amaderadas y ambaradas brillen durante más de 12 horas.',
+      points: 'Cuello, clavículas, muñecas y una atomización sobre la ropa.',
+      bestFamily: 'Amaderada'
     },
     frio: {
       sprays: '6 - 7 Atomizaciones',
-      advice: 'El frío comprime las moléculas aromáticas. Es el momento perfecto para usar las "bestias negras" de vainilla, oud, especias y cuero.',
+      advice: 'El frío comprime las moléculas aromáticas. Momento idóneo para usar extractos de vainilla, oud, especias y cuero.',
       points: 'Cuello, nuca, muñecas, pecho y hombros sobre la ropa.',
-      bestFamily: 'Oriental / Ámbar',
-      avoid: 'Evita cítricos ligeros; no tendrán fuerza suficiente.'
+      bestFamily: 'Oriental / Ámbar'
     }
   }[selectedTemp as 'calor' | 'moderado' | 'fresco' | 'frio'];
 
-  // Filter recommended perfumes for today's weather
   const weatherPerfumes = perfumes
     .filter(p => {
       if (selectedTemp === 'calor') return p.family === 'Cítrica / Fresca' || p.vibe.includes('Fresco');
@@ -71,154 +62,181 @@ export function SillageWeatherApp({ perfumes }: SillageWeatherAppProps) {
     .slice(0, 3);
 
   return (
-    <section id="clima-olfativo" className="py-20 bg-gradient-to-b from-zinc-950 via-[#0a0a0f] to-zinc-950 border-t border-zinc-800/80 scroll-mt-16">
+    <section id="clima-olfativo" className="py-20 bg-[#060608] border-t border-zinc-900 scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-950/70 border border-blue-500/40 text-blue-300 text-xs font-bold tracking-wider uppercase mb-4">
-            <CloudSun className="w-4 h-4 text-blue-400" />
-            <span>Aplicación Interactiva: Asesor de Clima & Atomizaciones</span>
-          </div>
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <p className="text-[11px] font-medium tracking-[0.3em] text-zinc-400 uppercase mb-3">
+            Guía Técnica de Proyección & Estela
+          </p>
 
-          <h2 className="font-serif text-3xl sm:text-5xl font-light text-zinc-100">
-            ¿Cuántos Sprays Aplicar Hoy? <br />
-            <span className="italic text-gold-gradient font-normal">Calculador de Fijación en Chile.</span>
+          <h2 className="font-serif text-3xl sm:text-5xl font-light text-zinc-100 leading-[1.2]">
+            Asesor de Clima & Atomizaciones <br />
+            <span className="italic text-gold-gradient font-normal">Calculador de Dosis Diaria.</span>
           </h2>
 
           <p className="mt-4 text-sm sm:text-base text-zinc-400 font-light leading-relaxed">
-            La temperatura y la humedad cambian radicalmente la proyección de un perfume. Selecciona tu ciudad y el clima de hoy para calcular tus atomizaciones perfectas.
+            La temperatura ambiente y la humedad modifican la velocidad de evaporación de los aceites esenciales. Ajusta tu ubicación en Chile para obtener la dosis exacta recomendada.
           </p>
         </div>
 
-        {/* Interactive App Workspace */}
-        <div className="p-6 sm:p-10 rounded-3xl bg-zinc-900/60 border border-gold-500/30 shadow-2xl backdrop-blur-md max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 pb-8 border-b border-zinc-800">
-            {/* City Selector */}
+        {/* Advisor Controls & Output */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+          
+          {/* Controls */}
+          <div className="lg:col-span-5 p-6 rounded-2xl bg-zinc-950 border border-zinc-850 space-y-5 shadow-xl">
+            <div className="flex items-center gap-2 pb-3 border-b border-zinc-900">
+              <SlidersHorizontal className="w-4 h-4 text-gold-400" />
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
+                Parámetros de tu Jornada
+              </h3>
+            </div>
+
+            {/* City */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gold-400 mb-2 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5" /> 1. Tu Ciudad en Chile
-              </label>
+              <label className="block text-zinc-400 text-xs mb-1.5 font-medium">Ubicación en Chile</label>
               <select
                 value={selectedCity}
                 onChange={e => setSelectedCity(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-700/80 text-zinc-200 text-xs rounded-xl p-3 focus:outline-none focus:border-gold-500"
+                className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-gold-500"
               >
                 <option value="Santiago (RM)">Santiago (Región Metropolitana)</option>
-                <option value="Viña del Mar / Valparaíso">Viña del Mar / Valparaíso (Costero)</option>
-                <option value="Concepción">Concepción / Biobío</option>
-                <option value="Antofagasta / Iquique">Norte Grande (Antofagasta / Iquique)</option>
+                <option value="Viña del Mar / Valparaíso">Viña del Mar / Valparaíso</option>
+                <option value="Concepción / Biobío">Concepción / Biobío</option>
+                <option value="Antofagasta">Antofagasta</option>
                 <option value="La Serena / Coquimbo">La Serena / Coquimbo</option>
-                <option value="Temuco / Valdivia">Sur (Temuco / Valdivia / P. Montt)</option>
-                <option value="Punta Arenas">Punta Arenas / Magallanes (Frío Extremo)</option>
+                <option value="Temuco / Araucanía">Temuco / Araucanía</option>
+                <option value="Puerto Montt">Puerto Montt / Los Lagos</option>
               </select>
             </div>
 
-            {/* Temperature / Climate Selector */}
+            {/* Temp */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gold-400 mb-2 flex items-center gap-1.5">
-                <CloudSun className="w-3.5 h-3.5" /> 2. Clima / Temperatura
-              </label>
+              <label className="block text-zinc-400 text-xs mb-1.5 font-medium">Temperatura Estimada</label>
               <select
                 value={selectedTemp}
                 onChange={e => setSelectedTemp(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-700/80 text-zinc-200 text-xs rounded-xl p-3 focus:outline-none focus:border-gold-500"
+                className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-gold-500"
               >
-                <option value="calor">☀️ Calor Intenso (&gt; 27°C)</option>
-                <option value="moderado">🌤️ Templado / Agradable (18°C - 24°C)</option>
-                <option value="fresco">🍂 Fresco / Otoño (12°C - 17°C)</option>
-                <option value="frio">❄️ Frío / Invierno (&lt; 10°C)</option>
+                <option value="calor">Caluroso (+28°C)</option>
+                <option value="moderado">Templado / Moderado (20°C - 27°C)</option>
+                <option value="fresco">Fresco / Media Estación (14°C - 19°C)</option>
+                <option value="frio">Frío / Invierno (&lt; 14°C)</option>
               </select>
             </div>
 
-            {/* Context / Ocasion */}
+            {/* Context */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gold-400 mb-2 flex items-center gap-1.5">
-                <Wind className="w-3.5 h-3.5" /> 3. Entorno de Uso
-              </label>
+              <label className="block text-zinc-400 text-xs mb-1.5 font-medium">Ocasión / Entorno</label>
               <select
                 value={selectedContext}
                 onChange={e => setSelectedContext(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-700/80 text-zinc-200 text-xs rounded-xl p-3 focus:outline-none focus:border-gold-500"
+                className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-gold-500"
               >
-                <option value="oficina">💼 Oficina / Espacio Cerrado</option>
-                <option value="cita">🌙 Cita Romántica / Noche</option>
-                <option value="fiesta">🔥 Fiesta / Evento concurrido</option>
-                <option value="aire-libre">🌲 Al Aire Libre / Paseo</option>
+                <option value="oficina">Oficina & Trabajo (Espacio Cerrado)</option>
+                <option value="cita">Cita Romántica / Cena Nocturna</option>
+                <option value="fiesta">Fiesta & Evento Social</option>
+                <option value="aire-libre">Aire Libre & Casual Diario</option>
               </select>
             </div>
           </div>
 
-          {/* Results: Spray Formula & Body Points */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center mb-8">
-            <div className="p-6 rounded-2xl bg-zinc-950 border border-gold-500/40 text-center">
-              <span className="text-[10px] font-bold text-gold-400 uppercase tracking-widest">
-                Dosis Recomendada Hoy
-              </span>
-              <h3 className="text-3xl font-serif font-bold text-zinc-100 mt-2 text-gold-gradient">
-                {sprayAdvice.sprays}
-              </h3>
-              <p className="text-xs text-zinc-400 mt-2">
-                Para {selectedCity} bajo clima {selectedTemp} en {selectedContext}.
-              </p>
+          {/* Results Summary */}
+          <div className="lg:col-span-7 p-6 sm:p-8 rounded-2xl bg-zinc-950 border border-gold-500/30 space-y-5 shadow-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 pb-4 border-b border-zinc-850">
+              <div>
+                <span className="text-[10px] font-semibold text-gold-400 uppercase tracking-[0.2em]">
+                  Fórmula Recomendada para {selectedCity}
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-serif text-zinc-100 mt-1 font-light">
+                  Dosis Recomendada Hoy
+                </h3>
+              </div>
+              <div className="px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-center">
+                <span className="text-sm sm:text-base font-serif font-bold text-gold-300">
+                  {sprayAdvice.sprays}
+                </span>
+              </div>
             </div>
 
-            <div className="lg:col-span-2 p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-2 text-xs">
-              <div className="flex items-start gap-2 text-zinc-300">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span><strong className="text-zinc-100">Puntos de aplicación:</strong> {sprayAdvice.points}</span>
-              </div>
-              <div className="flex items-start gap-2 text-zinc-300">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span><strong className="text-zinc-100">Estrategia olfativa:</strong> {sprayAdvice.advice}</span>
-              </div>
-              <div className="flex items-start gap-2 text-zinc-400 text-[11px] pt-1">
-                <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <span>{sprayAdvice.avoid}</span>
+            {/* Advice Details */}
+            <div className="space-y-3 text-xs text-zinc-300 leading-relaxed">
+              <p>{sprayAdvice.advice}</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-850">
+                  <span className="text-[10px] font-semibold uppercase text-gold-400 tracking-wider block mb-1">
+                    Puntos de Pulso Clave
+                  </span>
+                  <p className="text-xs text-zinc-300">{sprayAdvice.points}</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-850">
+                  <span className="text-[10px] font-semibold uppercase text-gold-400 tracking-wider block mb-1">
+                    Familia de Mayor Rendimiento
+                  </span>
+                  <p className="text-xs text-zinc-300">{sprayAdvice.bestFamily}</p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Recommended Fragrances for this Weather */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-gold-400 mb-4 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" /> Fragancias Ganadoras para este Clima
-            </h4>
+        </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {weatherPerfumes.map(p => (
-                <div
-                  key={p.id}
-                  className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-gold-500/40 transition flex flex-col justify-between group"
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="relative w-14 h-16 rounded-lg overflow-hidden bg-zinc-900 shrink-0 border border-zinc-800">
-                      <Image src={p.image} alt={p.name} fill className="object-cover" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <span className="text-[10px] font-bold text-gold-400 uppercase truncate block">{p.brand}</span>
-                      <h5 className="text-xs font-semibold text-zinc-100 truncate">{p.name}</h5>
-                      <span className="text-xs font-bold text-zinc-200 font-serif mt-1 block">{formatCLP(p.price)}</span>
-                    </div>
+        {/* Fragrances that excel today */}
+        <div>
+          <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400 text-center mb-6">
+            Fragancias con Rendimiento Sobresaliente para estas Condiciones
+          </h4>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {weatherPerfumes.map(perfume => (
+              <div
+                key={perfume.id}
+                className="p-4 rounded-2xl bg-zinc-950 border border-zinc-850 hover:border-zinc-700 transition flex flex-col justify-between group shadow-xl"
+              >
+                <div className="flex gap-3.5 items-center mb-3">
+                  <div className="relative w-16 h-20 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-850 shrink-0">
+                    <Image
+                      src={perfume.image}
+                      alt={perfume.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
-
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-900 text-xs">
-                    <button
-                      onClick={() => openQuickView(p)}
-                      className="py-1.5 px-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-[11px] font-medium text-center transition"
-                    >
-                      Ficha
-                    </button>
-                    <button
-                      onClick={() => addToCart(p)}
-                      className="py-1.5 px-2 rounded-lg bg-gold-500 hover:bg-gold-400 text-black text-[11px] font-bold text-center transition"
-                    >
-                      Comprar
-                    </button>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[10px] uppercase font-bold text-gold-400 truncate block">
+                      {perfume.brand}
+                    </span>
+                    <h5 className="text-xs font-semibold text-zinc-100 truncate mt-0.5">
+                      {perfume.name}
+                    </h5>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">
+                      {perfume.family}
+                    </p>
+                    <p className="text-xs font-serif font-bold text-zinc-100 mt-1">
+                      {formatCLP(perfume.price)}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-900 text-xs">
+                  <button
+                    onClick={() => openQuickView(perfume)}
+                    className="py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-medium text-center border border-zinc-800 text-[11px]"
+                  >
+                    Ver Notas
+                  </button>
+                  <button
+                    onClick={() => addToCart(perfume)}
+                    className="py-2 rounded-lg bg-zinc-100 hover:bg-gold-400 text-black font-semibold text-center text-[11px] transition flex items-center justify-center gap-1"
+                  >
+                    <ShoppingBag className="w-3 h-3" />
+                    <span>Llevar</span>
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

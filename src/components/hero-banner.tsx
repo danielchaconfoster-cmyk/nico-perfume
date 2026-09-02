@@ -38,14 +38,14 @@ export function HeroBanner() {
             {/* Direct Action Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
               <Link
-                href="#recomendador"
+                href="/fragancias-gemelas"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 text-black font-semibold text-xs tracking-wider uppercase shadow-lg shadow-gold-500/20 hover:brightness-110 active:scale-95 transition"
               >
                 <Sparkles className="w-3.5 h-3.5 text-black" />
                 <span>Fragancias Gemelas</span>
               </Link>
               <Link
-                href="#catalogo"
+                href="/catalogo"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700/80 font-medium text-xs tracking-wider uppercase hover:border-gold-500/40 transition group"
               >
                 <span>Explorar Catálogo</span>
@@ -97,7 +97,7 @@ export function HeroBanner() {
                   </p>
                 </div>
                 <Link
-                  href="#catalogo"
+                  href="/catalogo"
                   className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-gold-300 hover:text-white transition"
                 >
                   <span>Ver Todos</span>
@@ -127,7 +127,7 @@ export function HeroBanner() {
                   100% Reembolsable al comprar tu botella
                 </p>
                 <Link
-                  href="#decants"
+                  href="/decants"
                   className="inline-flex items-center gap-1 text-[11px] font-semibold text-gold-300 mt-2 hover:underline"
                 >
                   <span>Ver Kits</span>
@@ -151,7 +151,7 @@ export function HeroBanner() {
               </div>
 
               <Link
-                href="#recomendador"
+                href="/fragancias-gemelas"
                 className="w-full py-2 px-3 rounded-lg bg-zinc-900 hover:bg-gold-500 hover:text-black text-gold-300 text-[11px] font-semibold text-center border border-zinc-700 transition flex items-center justify-center gap-1.5"
               >
                 <span>Probar Recomendador</span>

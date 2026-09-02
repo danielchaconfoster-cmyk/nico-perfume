@@ -143,7 +143,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prev, { perfume, quantity, formatType, decantSize }];
     });
-    showToast(`✨ ${perfume.name} agregado a tu bolsa`);
+    showToast(`${perfume.name} agregado a tu bolsa`);
     setIsCartOpen(true);
   };
 
@@ -174,7 +174,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         showToast('Eliminado de tus fragancias favoritas');
         return prev.filter(id => id !== perfumeId);
       } else {
-        showToast('❤️ Guardado en tus fragancias favoritas');
+        showToast('Guardado en tus fragancias favoritas');
         return [...prev, perfumeId];
       }
     });
@@ -196,7 +196,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     setCompareList(prev => [...prev, perfume]);
-    showToast(`⚖️ ${perfume.name} añadido a la comparativa`);
+    showToast(`${perfume.name} añadido a la comparativa`);
     setIsCompareOpen(true);
   };
 

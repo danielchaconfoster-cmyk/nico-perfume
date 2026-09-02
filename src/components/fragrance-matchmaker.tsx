@@ -6,18 +6,18 @@ import { getTwinPerfumeRecommendations } from '@/lib/recommendation-engine';
 import { useCart } from '@/lib/cart-context';
 import { formatCLP } from '@/lib/utils';
 import {
-  Sparkles,
   Search,
   X,
   Plus,
   ArrowRight,
-  Flame,
   CheckCircle2,
   HelpCircle,
   Eye,
   ShoppingBag,
   Layers,
-  Heart
+  Heart,
+  FlaskConical,
+  Sparkles
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -58,22 +58,21 @@ export function FragranceMatchmaker({ perfumes }: FragranceMatchmakerProps) {
       p =>
         p.id !== firstId &&
         (p.name.toLowerCase().includes(q) ||
-         p.brand.toLowerCase().includes(q) ||
-         p.fullName.toLowerCase().includes(q))
+          p.brand.toLowerCase().includes(q) ||
+          p.fullName.toLowerCase().includes(q))
     ).slice(0, 10);
   }, [perfumes, searchQuery2, selectedPerfumes]);
 
-  // Compute recommendations
+  // Generate recommendations
   const recommendations: RecommendationResult[] = useMemo(() => {
     if (selectedPerfumes.length === 0) return [];
     return getTwinPerfumeRecommendations(perfumes, selectedPerfumes, 6);
   }, [perfumes, selectedPerfumes]);
 
-  // Quick preset selections
-  const handleSelectPreset = (p1Name: string, p2Name?: string) => {
-    const p1 = perfumes.find(p => p.name.toLowerCase().includes(p1Name.toLowerCase()) || p.fullName.toLowerCase().includes(p1Name.toLowerCase()));
-    const p2 = p2Name ? perfumes.find(p => p.name.toLowerCase().includes(p2Name.toLowerCase()) || p.fullName.toLowerCase().includes(p2Name.toLowerCase())) : undefined;
-
+  // Preset Selection Handlers (Clean, no emojis)
+  const handleSelectPreset = (name1: string, name2?: string) => {
+    const p1 = perfumes.find(p => p.name.toLowerCase().includes(name1.toLowerCase()));
+    const p2 = name2 ? perfumes.find(p => p.name.toLowerCase().includes(name2.toLowerCase())) : undefined;
     const list: Perfume[] = [];
     if (p1) list.push(p1);
     if (p2) list.push(p2);
@@ -105,59 +104,56 @@ export function FragranceMatchmaker({ perfumes }: FragranceMatchmakerProps) {
   };
 
   return (
-    <section id="recomendador" className="py-20 bg-gradient-to-b from-[#08080a] via-[#0d0d12] to-[#08080a] relative scroll-mt-16">
-      {/* Decorative Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-gold-600/10 blur-[150px] pointer-events-none rounded-full" />
-
+    <section id="recomendador" className="py-20 bg-[#060609] relative scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* Section Header */}
+        
+        {/* Editorial Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold-950/80 border border-gold-500/40 text-gold-300 text-xs font-semibold tracking-wider uppercase mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-gold-400" />
-            <span>Motor de Afinidad Olfativa</span>
-          </div>
+          <p className="text-[11px] font-medium tracking-[0.3em] text-gold-400 uppercase mb-3">
+            Laboratoire Olfactif • Estudio de Afinidad
+          </p>
           <h2 className="font-serif text-3xl sm:text-5xl font-light text-zinc-100">
             Encuentra tu <span className="italic text-gold-gradient font-normal">Fragancia Gemela</span>
           </h2>
           <p className="mt-4 text-sm sm:text-base text-zinc-400 font-light leading-relaxed">
-            ¿Tienes uno o dos perfumes favoritos y quieres descubrir nuevas opciones con el mismo ADN olfativo? Selecciónalos abajo y nuestro algoritmo analizará más de 1.300 perfumes por familia de notas, intensidad y acordes.
+            Selecciona uno o dos perfumes que utilices habitualmente. Nuestro motor analiza pirámides de notas, familias de acordes y concentración para descubrir fragancias con un ADN aromático equivalente.
           </p>
         </div>
 
-        {/* Preset Quick Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-8 text-xs">
-          <span className="text-zinc-400 mr-2 flex items-center gap-1 font-medium">
-            <Flame className="w-3.5 h-3.5 text-gold-400" /> Combos Virales:
+        {/* Preset Selections (Editorial Minimalist Tabs) */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-10 text-xs">
+          <span className="text-zinc-500 mr-2 text-[11px] tracking-wider uppercase font-medium">
+            Selecciones Rápidas:
           </span>
           <button
             onClick={() => handleSelectPreset('9 PM', 'Amber Oud')}
-            className="px-3 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/60 hover:border-gold-500/50 transition"
+            className="px-3.5 py-1.5 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:border-gold-500/40 transition text-xs"
           >
-            🔥 Afnan 9 PM + Amber Oud
+            Afnan 9 PM + Amber Oud
           </button>
           <button
             onClick={() => handleSelectPreset('King', 'Wanted')}
-            className="px-3 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/60 hover:border-gold-500/50 transition"
+            className="px-3.5 py-1.5 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:border-gold-500/40 transition text-xs"
           >
-            👑 Bharara King + Azzaro Wanted
+            Bharara King + Azzaro Wanted
           </button>
           <button
             onClick={() => handleSelectPreset('CK One')}
-            className="px-3 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/60 hover:border-gold-500/50 transition"
+            className="px-3.5 py-1.5 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:border-gold-500/40 transition text-xs"
           >
-            🌿 Solo CK One (Fresco Diario)
+            Calvin Klein CK One (Fresco Diario)
           </button>
         </div>
 
         {/* Twin Selector Interactive Workspace */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-14">
           {/* SLOT 1 */}
-          <div className="p-6 rounded-2xl bg-zinc-900/50 border border-gold-500/30 backdrop-blur-sm relative flex flex-col justify-between">
+          <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition relative flex flex-col justify-between shadow-xl">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-gold-400 flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-300 flex items-center justify-center text-[11px] font-bold">1</span>
-                  Primer Perfume Favorito
+                <span className="text-xs font-medium uppercase tracking-[0.15em] text-gold-400 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-zinc-900 border border-zinc-800 text-gold-300 flex items-center justify-center text-[10px] font-bold">1</span>
+                  Primer Perfume de Referencia
                 </span>
                 {selectedPerfumes[0] && (
                   <button
@@ -170,8 +166,8 @@ export function FragranceMatchmaker({ perfumes }: FragranceMatchmakerProps) {
               </div>
 
               {selectedPerfumes[0] ? (
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-zinc-950/80 border border-gold-500/40">
-                  <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-zinc-900 shrink-0 border border-zinc-800">
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-zinc-900/70 border border-zinc-800">
+                  <div className="w-16 h-20 relative rounded-lg overflow-hidden bg-zinc-900 shrink-0 border border-zinc-800">
                     <Image
                       src={selectedPerfumes[0].image}
                       alt={selectedPerfumes[0].name}
@@ -180,13 +176,13 @@ export function FragranceMatchmaker({ perfumes }: FragranceMatchmakerProps) {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="text-[11px] uppercase tracking-wider text-gold-400 font-semibold">
+                    <span className="text-[10px] uppercase tracking-wider text-gold-400 font-bold">
                       {selectedPerfumes[0].brand}
                     </span>
-                    <h4 className="text-sm font-medium text-zinc-100 truncate">
+                    <h4 className="text-sm font-semibold text-zinc-100 truncate mt-0.5">
                       {selectedPerfumes[0].name}
                     </h4>
-                    <p className="text-xs text-zinc-400 mt-0.5">
+                    <p className="text-xs text-zinc-400 mt-1">
                       {selectedPerfumes[0].family} • {selectedPerfumes[0].volume}ml
                     </p>
                   </div>
@@ -197,53 +193,54 @@ export function FragranceMatchmaker({ perfumes }: FragranceMatchmakerProps) {
                     <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                     <input
                       type="text"
-                      placeholder="Busca tu perfume (ej: 9 PM, Sauvage, King)..."
+                      placeholder="Buscar por nombre o marca (ej: 9 PM, Sauvage, King)..."
                       value={searchQuery1}
-                      onFocus={() => setIsDropdown1Open(true)}
                       onChange={e => {
                         setSearchQuery1(e.target.value);
                         setIsDropdown1Open(true);
                       }}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-950/90 border border-zinc-700/80 text-zinc-100 text-sm focus:outline-none focus:border-gold-500 transition"
+                      onFocus={() => setIsDropdown1Open(true)}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-gold-500 transition"
                     />
                   </div>
 
-                  {/* Dropdown Options */}
                   {isDropdown1Open && (
-                    <div className="absolute top-full left-0 right-0 mt-2 z-30 max-h-60 overflow-y-auto rounded-xl bg-zinc-950 border border-zinc-800 shadow-2xl divide-y divide-zinc-900">
-                      {filteredOptions1.map(p => (
-                        <button
-                          key={p.id}
-                          onClick={() => handleSelectSlot1(p)}
-                          className="w-full text-left p-3 hover:bg-zinc-900/90 transition flex items-center justify-between group"
-                        >
-                          <div>
-                            <p className="text-xs font-semibold text-gold-400">{p.brand}</p>
-                            <p className="text-sm text-zinc-200 group-hover:text-gold-300 font-medium truncate">
-                              {p.name}
-                            </p>
-                            <p className="text-[11px] text-zinc-400">{p.family} • {p.gender}</p>
-                          </div>
-                          <Plus className="w-4 h-4 text-zinc-500 group-hover:text-gold-400" />
-                        </button>
-                      ))}
+                    <div className="absolute top-full left-0 right-0 mt-2 p-1.5 rounded-xl bg-zinc-950 border border-zinc-800 shadow-2xl max-h-56 overflow-y-auto z-20">
+                      {filteredOptions1.length === 0 ? (
+                        <p className="text-xs text-zinc-500 p-3 text-center">No encontramos coincidencias</p>
+                      ) : (
+                        filteredOptions1.map(p => (
+                          <button
+                            key={p.id}
+                            onClick={() => handleSelectSlot1(p)}
+                            className="w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-zinc-900 text-left text-xs text-zinc-300 hover:text-white transition group"
+                          >
+                            <div className="min-w-0 pr-2">
+                              <span className="text-[10px] uppercase font-bold text-gold-400 block truncate">{p.brand}</span>
+                              <span className="font-medium text-zinc-200 group-hover:text-gold-300 truncate block">{p.name}</span>
+                            </div>
+                            <span className="text-[11px] text-zinc-500 shrink-0 font-serif">{formatCLP(p.price)}</span>
+                          </button>
+                        ))
+                      )}
                     </div>
                   )}
                 </div>
               )}
             </div>
-            <p className="text-[11px] text-zinc-500 mt-4">
-              {selectedPerfumes[0] ? '✓ Perfume de referencia seleccionado' : 'Elige el aroma que más disfrutas usar'}
-            </p>
+
+            <div className="mt-4 pt-3 border-t border-zinc-900 text-[11px] text-zinc-500">
+              {selectedPerfumes[0] ? 'Perfume fijado como base de notas' : 'Escribe para elegir tu fragancia base'}
+            </div>
           </div>
 
-          {/* SLOT 2 (Dual Match Option) */}
-          <div className="p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-sm relative flex flex-col justify-between">
+          {/* SLOT 2 */}
+          <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition relative flex flex-col justify-between shadow-xl">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded-full bg-zinc-800 text-zinc-300 flex items-center justify-center text-[11px] font-bold">2</span>
-                  Segundo Perfume (Opcional - Fusión)
+                <span className="text-xs font-medium uppercase tracking-[0.15em] text-zinc-300 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center justify-center text-[10px] font-bold">2</span>
+                  Segundo Perfume (Fusión Opcional)
                 </span>
                 {selectedPerfumes[1] && (
                   <button
@@ -256,8 +253,8 @@ export function FragranceMatchmaker({ perfumes }: FragranceMatchmakerProps) {
               </div>
 
               {selectedPerfumes[1] ? (
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-zinc-950/80 border border-zinc-700/80">
-                  <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-zinc-900 shrink-0 border border-zinc-800">
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-zinc-900/70 border border-zinc-800">
+                  <div className="w-16 h-20 relative rounded-lg overflow-hidden bg-zinc-900 shrink-0 border border-zinc-800">
                     <Image
                       src={selectedPerfumes[1].image}
                       alt={selectedPerfumes[1].name}
@@ -266,13 +263,13 @@ export function FragranceMatchmaker({ perfumes }: FragranceMatchmakerProps) {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="text-[11px] uppercase tracking-wider text-gold-400 font-semibold">
+                    <span className="text-[10px] uppercase tracking-wider text-gold-400 font-bold">
                       {selectedPerfumes[1].brand}
                     </span>
-                    <h4 className="text-sm font-medium text-zinc-100 truncate">
+                    <h4 className="text-sm font-semibold text-zinc-100 truncate mt-0.5">
                       {selectedPerfumes[1].name}
                     </h4>
-                    <p className="text-xs text-zinc-400 mt-0.5">
+                    <p className="text-xs text-zinc-400 mt-1">
                       {selectedPerfumes[1].family} • {selectedPerfumes[1].volume}ml
                     </p>
                   </div>
@@ -283,166 +280,145 @@ export function FragranceMatchmaker({ perfumes }: FragranceMatchmakerProps) {
                     <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                     <input
                       type="text"
-                      placeholder="Agrega un 2do perfume para fusionar aromas..."
+                      placeholder="Añade un segundo perfume para fusionar aromas..."
                       value={searchQuery2}
-                      onFocus={() => setIsDropdown2Open(true)}
                       onChange={e => {
                         setSearchQuery2(e.target.value);
                         setIsDropdown2Open(true);
                       }}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-950/90 border border-zinc-800 text-zinc-100 text-sm focus:outline-none focus:border-gold-500 transition"
+                      onFocus={() => setIsDropdown2Open(true)}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-gold-500 transition"
                     />
                   </div>
 
-                  {/* Dropdown Options */}
                   {isDropdown2Open && (
-                    <div className="absolute top-full left-0 right-0 mt-2 z-30 max-h-60 overflow-y-auto rounded-xl bg-zinc-950 border border-zinc-800 shadow-2xl divide-y divide-zinc-900">
-                      {filteredOptions2.map(p => (
-                        <button
-                          key={p.id}
-                          onClick={() => handleSelectSlot2(p)}
-                          className="w-full text-left p-3 hover:bg-zinc-900/90 transition flex items-center justify-between group"
-                        >
-                          <div>
-                            <p className="text-xs font-semibold text-gold-400">{p.brand}</p>
-                            <p className="text-sm text-zinc-200 group-hover:text-gold-300 font-medium truncate">
-                              {p.name}
-                            </p>
-                            <p className="text-[11px] text-zinc-400">{p.family} • {p.gender}</p>
-                          </div>
-                          <Plus className="w-4 h-4 text-zinc-500 group-hover:text-gold-400" />
-                        </button>
-                      ))}
+                    <div className="absolute top-full left-0 right-0 mt-2 p-1.5 rounded-xl bg-zinc-950 border border-zinc-800 shadow-2xl max-h-56 overflow-y-auto z-20">
+                      {filteredOptions2.length === 0 ? (
+                        <p className="text-xs text-zinc-500 p-3 text-center">No encontramos coincidencias</p>
+                      ) : (
+                        filteredOptions2.map(p => (
+                          <button
+                            key={p.id}
+                            onClick={() => handleSelectSlot2(p)}
+                            className="w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-zinc-900 text-left text-xs text-zinc-300 hover:text-white transition group"
+                          >
+                            <div className="min-w-0 pr-2">
+                              <span className="text-[10px] uppercase font-bold text-gold-400 block truncate">{p.brand}</span>
+                              <span className="font-medium text-zinc-200 group-hover:text-gold-300 truncate block">{p.name}</span>
+                            </div>
+                            <span className="text-[11px] text-zinc-500 shrink-0 font-serif">{formatCLP(p.price)}</span>
+                          </button>
+                        ))
+                      )}
                     </div>
                   )}
                 </div>
               )}
             </div>
-            <p className="text-[11px] text-zinc-500 mt-4">
-              Combina dos fragancias para encontrar el punto medio exacto de aroma
-            </p>
+
+            <div className="mt-4 pt-3 border-t border-zinc-900 text-[11px] text-zinc-500">
+              {selectedPerfumes[1]
+                ? 'Fusión dual activa: balanceando acordes de ambos perfumes'
+                : 'Opcional: fusiona 2 perfumes para encontrar el punto medio exacto'}
+            </div>
           </div>
         </div>
 
-        {/* Recommendations Grid */}
-        {selectedPerfumes.length > 0 ? (
-          <div>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-4 border-b border-zinc-800">
-              <div>
-                <h3 className="font-serif text-2xl text-zinc-100 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-gold-400" />
-                  <span>Fragancias Recomendadas con Mayor Afinidad</span>
-                </h3>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Basado en {selectedPerfumes.map(p => p.name).join(' + ')}
-                </p>
-              </div>
-              <div className="text-xs text-gold-400 bg-gold-950/60 border border-gold-500/30 px-3 py-1.5 rounded-full font-medium">
-                {recommendations.length} Coincidencias de Alta Precisión
-              </div>
+        {/* Recommendation Results Showcase */}
+        {selectedPerfumes.length > 0 && recommendations.length > 0 && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="text-center">
+              <h3 className="font-serif text-2xl sm:text-3xl font-light text-zinc-100">
+                Fragancias Recomendadas con Mayor Afinidad
+              </h3>
+              <p className="text-xs text-zinc-400 mt-1 max-w-lg mx-auto">
+                Basadas en la intersección de pirámides olfativas y fijación de{' '}
+                <strong className="text-zinc-200 font-semibold">{selectedPerfumes.map(p => p.name).join(' y ')}</strong>.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendations.map(rec => {
-                const p = rec.perfume;
-                const inWishlist = isInWishlist(p.id);
+            {/* Results Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recommendations.map(({ perfume, matchScore, reasons, matchingNotes }) => {
+                const inWishlist = isInWishlist(perfume.id);
 
                 return (
                   <div
-                    key={p.id}
-                    className="group relative rounded-2xl bg-zinc-900/60 border border-zinc-800 hover:border-gold-500/40 p-5 transition duration-300 flex flex-col justify-between hover:shadow-2xl hover:shadow-gold-500/10"
+                    key={perfume.id}
+                    className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-gold-500/40 transition duration-300 flex flex-col justify-between group shadow-xl"
                   >
-                    {/* Top Badges */}
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-950 to-emerald-900 border border-emerald-500/40 text-emerald-300 text-xs font-bold shadow">
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                        {rec.matchScore}% Match Olfativo
-                      </span>
-                      <button
-                        onClick={() => toggleWishlist(p.id)}
-                        className={`p-2 rounded-full border transition ${
-                          inWishlist
-                            ? 'bg-rose-950/80 border-rose-500/60 text-rose-400'
-                            : 'bg-zinc-950/60 border-zinc-800 text-zinc-400 hover:text-gold-400'
-                        }`}
-                        title="Guardar en favoritos"
-                      >
-                        <Heart className="w-4 h-4 fill-current" />
-                      </button>
-                    </div>
-
-                    {/* Image & Main Info */}
-                    <div className="flex gap-4 mb-4">
-                      <div className="relative w-24 h-28 rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800/80 shrink-0">
-                        <Image
-                          src={p.image}
-                          alt={p.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition duration-500"
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1 flex flex-col justify-center">
-                        <span className="text-[11px] font-semibold text-gold-400 uppercase tracking-wider">
-                          {p.brand}
+                    <div>
+                      {/* Top Bar: Match Score */}
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-[11px] tracking-[0.1em] uppercase font-bold text-gold-300">
+                          {matchScore}% Match Olfativo
                         </span>
-                        <h4 className="text-base font-medium text-zinc-100 line-clamp-2 mt-0.5 group-hover:text-gold-300 transition">
-                          {p.name}
-                        </h4>
-                        <p className="text-xs text-zinc-400 mt-1">
-                          {p.concentration} • {p.volume}ml
-                        </p>
-                        <div className="mt-2 flex items-baseline gap-2">
-                          <span className="text-lg font-bold text-zinc-100 font-serif">
-                            {formatCLP(p.price)}
+                        <button
+                          onClick={() => toggleWishlist(perfume.id)}
+                          className={`p-2 rounded-full border transition ${
+                            inWishlist
+                              ? 'bg-rose-950/80 border-rose-600 text-rose-300'
+                              : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-rose-400'
+                          }`}
+                          aria-label="Añadir a favoritos"
+                        >
+                          <Heart className="w-3.5 h-3.5 fill-current" />
+                        </button>
+                      </div>
+
+                      {/* Product Thumbnail & Details */}
+                      <div className="flex gap-4 mb-4">
+                        <div className="relative w-20 h-28 rounded-xl overflow-hidden bg-zinc-900 shrink-0 border border-zinc-850">
+                          <Image
+                            src={perfume.image}
+                            alt={perfume.name}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] uppercase font-bold text-gold-400 block truncate">
+                            {perfume.brand}
                           </span>
-                          {p.originalPrice > p.price && (
-                            <span className="text-xs text-zinc-500 line-through">
-                              {formatCLP(p.originalPrice)}
-                            </span>
-                          )}
+                          <h4 className="text-sm font-semibold text-zinc-100 line-clamp-2 mt-0.5">
+                            {perfume.name}
+                          </h4>
+                          <p className="text-xs text-zinc-400 mt-1">
+                            {perfume.family} • {perfume.concentration}
+                          </p>
+                          <div className="mt-2 text-base font-bold text-zinc-100 font-serif">
+                            {formatCLP(perfume.price)}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Match Reasons Analysis */}
-                    <div className="p-3.5 rounded-xl bg-zinc-950/70 border border-zinc-800/90 mb-4 space-y-1.5 text-xs text-zinc-300">
-                      <p className="text-[11px] font-semibold text-gold-400/90 uppercase tracking-wider flex items-center gap-1">
-                        <Layers className="w-3 h-3" /> ¿Por qué es tu fragancia gemela?
-                      </p>
-                      {rec.reasons.map((reason, rIdx) => (
-                        <div key={rIdx} className="flex items-start gap-1.5 text-zinc-300">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                          <span className="leading-tight">{reason}</span>
-                        </div>
-                      ))}
-                      {rec.matchingNotes.length > 0 && (
-                        <div className="pt-1.5 border-t border-zinc-800/80 flex flex-wrap gap-1">
-                          {rec.matchingNotes.slice(0, 4).map((note, nIdx) => (
-                            <span
-                              key={nIdx}
-                              className="px-2 py-0.5 rounded-md bg-zinc-900 border border-gold-500/20 text-[10px] text-gold-300"
-                            >
-                              {note}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      {/* Why it matches */}
+                      <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-850 space-y-1.5 text-xs text-zinc-300">
+                        <p className="text-[10px] font-semibold text-gold-400 uppercase tracking-wider">
+                          ¿Por qué es tu fragancia gemela?
+                        </p>
+                        {reasons.slice(0, 2).map((reason, idx) => (
+                          <div key={idx} className="flex items-start gap-1.5 text-[11px] text-zinc-300 leading-snug">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                            <span>{reason}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-800/80">
+                    <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-zinc-850 text-xs">
                       <button
-                        onClick={() => openQuickView(p)}
-                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/60 text-xs font-medium transition"
+                        onClick={() => openQuickView(perfume)}
+                        className="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 font-medium text-center border border-zinc-800 transition"
                       >
-                        <Eye className="w-3.5 h-3.5 text-zinc-400" />
-                        <span>Ver Ficha</span>
+                        Ver Notas
                       </button>
                       <button
-                        onClick={() => addToCart(p)}
-                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-gold-500 to-gold-600 hover:brightness-110 active:scale-95 text-black text-xs font-semibold shadow-md transition"
+                        onClick={() => addToCart(perfume)}
+                        className="py-2.5 px-3 rounded-xl bg-zinc-100 hover:bg-gold-400 text-black font-semibold text-center transition flex items-center justify-center gap-1.5"
                       >
-                        <ShoppingBag className="w-3.5 h-3.5 text-black" />
+                        <ShoppingBag className="w-3.5 h-3.5" />
                         <span>Comprar</span>
                       </button>
                     </div>
@@ -451,17 +427,8 @@ export function FragranceMatchmaker({ perfumes }: FragranceMatchmakerProps) {
               })}
             </div>
           </div>
-        ) : (
-          <div className="text-center py-12 px-4 rounded-3xl bg-zinc-950/50 border border-zinc-800/60 max-w-2xl mx-auto">
-            <Sparkles className="w-10 h-10 text-gold-500/60 mx-auto mb-4 animate-pulse-slow" />
-            <h3 className="text-lg font-serif text-zinc-200">
-              Selecciona tus fragancias arriba para comenzar
-            </h3>
-            <p className="text-xs text-zinc-400 mt-2 max-w-md mx-auto">
-              Escribe el nombre de tu perfume de cabecera o haz clic en alguno de los combos virales para descubrir fragancias con notas idénticas y proyección sobresaliente.
-            </p>
-          </div>
         )}
+
       </div>
     </section>
   );
