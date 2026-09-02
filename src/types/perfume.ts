@@ -51,6 +51,38 @@ export interface Perfume {
 export interface CartItem {
   perfume: Perfume;
   quantity: number;
+  formatType?: 'bottle' | 'decant';
+  decantSize?: '5ml' | '10ml';
+}
+
+export interface CustomerShippingInfo {
+  name: string;
+  rut: string;
+  email: string;
+  phone: string;
+  region: string;
+  comuna: string;
+  address: string;
+  notes?: string;
+  invoiceType?: 'boleta' | 'factura';
+  companyName?: string;
+  companyRut?: string;
+  companyGiro?: string;
+}
+
+export interface DecantPack {
+  id: string;
+  title: string;
+  tagline: string;
+  description: string;
+  price: number;
+  originalPrice: number;
+  vialSize: string; // '5ml' | '10ml'
+  perfumeIds: string[];
+  perfumeNames: string[];
+  image: string;
+  badge: string;
+  rating: number;
 }
 
 export interface RecommendationResult {

@@ -74,13 +74,23 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#sommelier-quiz" className="hover:text-gold-400 transition">
-                  Quiz Sommelier
+                <Link href="#decants" className="text-amber-400 hover:text-amber-300 transition">
+                  🎁 Kits de Decants (5ml)
                 </Link>
               </li>
               <li>
-                <Link href="#bestsellers" className="hover:text-gold-400 transition">
-                  Más Vendidos
+                <Link href="#mayorista" className="text-emerald-400 hover:text-emerald-300 transition">
+                  💼 Portal Mayorista B2B
+                </Link>
+              </li>
+              <li>
+                <Link href="#clima-olfativo" className="hover:text-gold-400 transition">
+                  🌤️ Asesor de Clima
+                </Link>
+              </li>
+              <li>
+                <Link href="#sommelier-quiz" className="hover:text-gold-400 transition">
+                  Quiz Sommelier
                 </Link>
               </li>
             </ul>

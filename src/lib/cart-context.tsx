@@ -1,11 +1,11 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Perfume, CartItem } from '@/types/perfume';
+import { Perfume, CartItem, CustomerShippingInfo } from '@/types/perfume';
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (perfume: Perfume, quantity?: number) => void;
+  addToCart: (perfume: Perfume, quantity?: number, formatType?: 'bottle' | 'decant', decantSize?: '5ml' | '10ml') => void;
   removeFromCart: (perfumeId: string) => void;
   updateQuantity: (perfumeId: string, quantity: number) => void;
   clearCart: () => void;
@@ -16,6 +16,10 @@ interface CartContextType {
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
   
+  // Shipping details state
+  shippingInfo: CustomerShippingInfo;
+  setShippingInfo: React.Dispatch<React.SetStateAction<CustomerShippingInfo>>;
+
   // Wishlist
   wishlist: string[];
   toggleWishlist: (perfumeId: string) => void;
@@ -57,6 +61,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
+  // Default customer shipping information for Chile
+  const [shippingInfo, setShippingInfo] = useState<CustomerShippingInfo>({
+    name: '',
+    rut: '',
+    email: '',
+    phone: '',
+    region: 'Región Metropolitana',
+    comuna: 'Santiago / Las Condes / Providencia',
+    address: '',
+    notes: '',
+    invoiceType: 'boleta'
+  });
+
   // Load from localStorage on mount
   useEffect(() => {
     try {
@@ -65,6 +82,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       const savedWishlist = localStorage.getItem('nico_perfume_wishlist');
       if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+
+      const savedShipping = localStorage.getItem('nico_perfume_shipping');
+      if (savedShipping) setShippingInfo(JSON.parse(savedShipping));
     } catch (e) {
       console.error('Error loading cart from storage', e);
     }
@@ -78,6 +98,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       console.error('Error saving cart', e);
     }
   }, [cart]);
+
+  // Save shipping changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('nico_perfume_shipping', JSON.stringify(shippingInfo));
+    } catch (e) {
+      console.error('Error saving shipping info', e);
+    }
+  }, [shippingInfo]);
 
   // Save wishlist changes
   useEffect(() => {
@@ -95,17 +124,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }, 3200);
   };
 
-  const addToCart = (perfume: Perfume, quantity = 1) => {
+  const addToCart = (
+    perfume: Perfume,
+    quantity = 1,
+    formatType: 'bottle' | 'decant' = 'bottle',
+    decantSize: '5ml' | '10ml' = '5ml'
+  ) => {
     setCart(prev => {
-      const existing = prev.find(item => item.perfume.id === perfume.id);
+      const existing = prev.find(
+        item => item.perfume.id === perfume.id && item.formatType === formatType
+      );
       if (existing) {
         return prev.map(item =>
-          item.perfume.id === perfume.id
+          item.perfume.id === perfume.id && item.formatType === formatType
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prev, { perfume, quantity }];
+      return [...prev, { perfume, quantity, formatType, decantSize }];
     });
     showToast(`✨ ${perfume.name} agregado a tu bolsa`);
     setIsCartOpen(true);
@@ -208,6 +244,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         freeShippingRemaining,
         isCartOpen,
         setIsCartOpen,
+        shippingInfo,
+        setShippingInfo,
         wishlist,
         toggleWishlist,
         isInWishlist,

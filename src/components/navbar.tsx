@@ -33,42 +33,45 @@ export function Navbar({ onOpenWishlist }: NavbarProps) {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+          <nav className="hidden lg:flex items-center gap-6 text-sm font-medium">
             <Link
               href="#catalogo"
-              className="text-zinc-300 hover:text-gold-400 transition tracking-wider uppercase text-xs"
+              className="text-zinc-300 hover:text-gold-400 transition tracking-wider uppercase text-[11px]"
             >
               Catálogo
             </Link>
             <Link
               href="#recomendador"
-              className="flex items-center gap-1.5 text-gold-400 hover:text-gold-300 transition tracking-wider uppercase text-xs group"
+              className="flex items-center gap-1 text-gold-400 hover:text-gold-300 transition tracking-wider uppercase text-[11px] group"
             >
-              <Sparkles className="w-3.5 h-3.5 text-gold-400 group-hover:rotate-12 transition-transform" />
+              <Sparkles className="w-3 h-3 text-gold-400 group-hover:rotate-12 transition-transform" />
               <span>Fragancias Gemelas</span>
             </Link>
             <Link
-              href="#sommelier-quiz"
-              className="flex items-center gap-1.5 text-zinc-300 hover:text-gold-400 transition tracking-wider uppercase text-xs"
+              href="#decants"
+              className="text-amber-400 hover:text-amber-300 transition tracking-wider uppercase text-[11px] font-semibold"
             >
-              <Compass className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Quiz Sommelier</span>
+              🎁 Decants
             </Link>
             <Link
-              href="#bestsellers"
-              className="text-zinc-300 hover:text-gold-400 transition tracking-wider uppercase text-xs"
+              href="#mayorista"
+              className="text-emerald-400 hover:text-emerald-300 transition tracking-wider uppercase text-[11px] font-semibold"
             >
-              Más Vendidos
+              💼 Mayorista B2B
             </Link>
-            <a
-              href="https://wa.me/56912345678?text=Hola%20Nico%20Perfume!%20Quiero%20asesoria%20para%20elegir%20mi%20fragancia"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 transition text-xs font-semibold"
+            <Link
+              href="#clima-olfativo"
+              className="text-blue-400 hover:text-blue-300 transition tracking-wider uppercase text-[11px]"
             >
-              <PhoneCall className="w-3.5 h-3.5" />
-              <span>Asesoría WhatsApp</span>
-            </a>
+              🌤️ Clima & Sprays
+            </Link>
+            <Link
+              href="#sommelier-quiz"
+              className="flex items-center gap-1 text-zinc-300 hover:text-gold-400 transition tracking-wider uppercase text-[11px]"
+            >
+              <Compass className="w-3 h-3 text-emerald-400" />
+              <span>Quiz</span>
+            </Link>
           </nav>
 
           {/* Action Buttons */}

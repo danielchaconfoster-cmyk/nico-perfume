@@ -3,6 +3,10 @@ import { HeroBanner } from '@/components/hero-banner';
 import { MarketingBanner } from '@/components/marketing-banner';
 import { FragranceMatchmaker } from '@/components/fragrance-matchmaker';
 import { FragranceQuiz } from '@/components/fragrance-quiz';
+import { DecantSection } from '@/components/decant-section';
+import { DupeSavingsCalculator } from '@/components/dupe-savings-calculator';
+import { SillageWeatherApp } from '@/components/sillage-weather-app';
+import { WholesalePortal } from '@/components/wholesale-portal';
 import { BestsellersSection } from '@/components/bestsellers-section';
 import { ProductGrid } from '@/components/product-grid';
 import { OlfactoryGuide } from '@/components/olfactory-guide';
@@ -26,13 +30,22 @@ export default function HomePage() {
       {/* 3. Fragrance Twin Matchmaker (Key Recommender Feature) */}
       <FragranceMatchmaker perfumes={perfumes} />
 
-      {/* 4. Interactive Sommelier Quiz */}
+      {/* 4. Decant Discovery Sets (5ml / 10ml) - Zero-Risk Trial */}
+      <DecantSection perfumes={perfumes} />
+
+      {/* 5. Interactive Sommelier Quiz */}
       <FragranceQuiz perfumes={perfumes} />
 
-      {/* 5. Bestsellers & Viral Fragrances */}
+      {/* 6. Dupe Vault & Savings Calculator */}
+      <DupeSavingsCalculator perfumes={perfumes} />
+
+      {/* 7. Live Weather & Sillage Spray Advisor App */}
+      <SillageWeatherApp perfumes={perfumes} />
+
+      {/* 8. Bestsellers & Viral Fragrances */}
       <BestsellersSection perfumes={perfumes} />
 
-      {/* 6. Complete Catalog with Faceted Filters */}
+      {/* 9. Complete Catalog with Faceted Filters */}
       <ProductGrid
         perfumes={perfumes}
         brands={brands}
@@ -40,10 +53,13 @@ export default function HomePage() {
         genders={genders}
       />
 
-      {/* 7. Educational Olfactory Families Guide */}
+      {/* 10. B2B Wholesale Portal & Reseller Program */}
+      <WholesalePortal perfumes={perfumes} />
+
+      {/* 11. Educational Olfactory Families Guide */}
       <OlfactoryGuide />
 
-      {/* 8. Customer Testimonials & Reviews */}
+      {/* 12. Customer Testimonials & Reviews */}
       <ReviewsSection />
     </div>
   );
