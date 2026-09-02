@@ -176,18 +176,34 @@ test.describe('Nico Perfume - Complete Multi-Page & Feature Test Suite', () => {
     await page.locator('button[aria-label="Cerrar modal"]').click();
   });
 
-  test('09. Shopping Bag, Coupon & Free Shipping Progress', async ({ page }) => {
+  test('09. Spacious Cart Drawer & Navigation to Checkout', async ({ page }) => {
     await page.goto('/catalogo');
 
     // Add product to cart
     const addCartBtn = page.locator('button:has-text("Agregar a Bolsa")').first();
     await addCartBtn.click();
 
-    // Cart drawer should open
+    // Cart drawer should open with generous space
     await expect(page.locator('text=Bolsa de Fragancias')).toBeVisible();
+    await expect(page.locator('text=Total Estimado')).toBeVisible();
+
+    // Click "Ir al Checkout"
+    await page.locator('button:has-text("Ir al Checkout")').click();
+    await page.waitForURL('**/checkout');
+    await expect(page.locator('h1:has-text("Datos de Despacho & Pago")')).toBeVisible();
+  });
+
+  test('10. Dedicated Checkout Page: Coupon, Address & Breakdown', async ({ page }) => {
+    await page.goto('/catalogo');
+
+    // Add product to cart
+    const addCartBtn = page.locator('button:has-text("Agregar a Bolsa")').first();
+    await addCartBtn.click();
+    await page.locator('button:has-text("Ir al Checkout")').click();
+    await page.waitForURL('**/checkout');
 
     // Test Invalid Coupon
-    const couponInput = page.locator('input[placeholder*="Código de descuento"]');
+    const couponInput = page.locator('input[placeholder*="Cupón"]');
     await couponInput.fill('INVALIDCODE');
     await page.locator('button:has-text("Aplicar")').click();
     await expect(page.locator('text=Código de cupón no válido')).toBeVisible();
@@ -197,36 +213,6 @@ test.describe('Nico Perfume - Complete Multi-Page & Feature Test Suite', () => {
     await page.locator('button:has-text("Aplicar")').click();
     await expect(page.locator('text=Cupón del 10% de descuento aplicado')).toBeVisible();
     await expect(page.locator('text=Descuento Cupón')).toBeVisible();
-
-    // Close Cart
-    await page.locator('button[aria-label="Cerrar bolsa"]').click();
-  });
-
-  test('10. Integrated Shipping Info Form in Cart Drawer', async ({ page }) => {
-    await page.goto('/catalogo');
-
-    // Add product to cart first so shipping form is available
-    const addCartBtn = page.locator('button:has-text("Agregar a Bolsa")').first();
-    await addCartBtn.click();
-
-    // Open Shipping Form Accordion
-    await page.locator('button:has-text("Agregar datos de despacho")').click();
-
-    // Fill shipping details
-    const nameInput = page.locator('input[placeholder*="Nicolás Morales"]');
-    await nameInput.fill('Carlos Mendoza');
-
-    const rutInput = page.locator('input[placeholder*="19.876.543-2"]');
-    await rutInput.fill('18.765.432-1');
-
-    const addressInput = page.locator('input[placeholder*="Av. Apoquindo"]');
-    await addressInput.fill('Av. Providencia 1234, Depto 502');
-
-    // Verify customer data persists
-    await expect(nameInput).toHaveValue('Carlos Mendoza');
-
-    // Close Cart
-    await page.locator('button[aria-label="Cerrar bolsa"]').click();
   });
 
   test('11. B2B Wholesale Portal & Profit Simulator', async ({ page }) => {
@@ -243,21 +229,16 @@ test.describe('Nico Perfume - Complete Multi-Page & Feature Test Suite', () => {
     await expect(page.locator('text=Nivel Oro VIP Distribuidor (52% OFF)')).toBeVisible();
   });
 
-  test('12. Online Checkout Flow & Order Confirmation Ticket', async ({ page }) => {
+  test('12. Online Checkout Order Submission & Tracking Ticket', async ({ page }) => {
     await page.goto('/catalogo');
 
     // Add item to cart
     const addCartBtn = page.locator('button:has-text("Agregar a Bolsa")').first();
     await addCartBtn.click();
+    await page.locator('button:has-text("Ir al Checkout")').click();
+    await page.waitForURL('**/checkout');
 
-    // Open Online Checkout
-    await page.locator('button:has-text("Finalizar Compra Online")').click();
-
-    // Verify Checkout modal
-    await expect(page.locator('text=Pasarela de Despacho & Pago Seguro')).toBeVisible();
-    await expect(page.locator('text=1. Datos Personales del Comprador')).toBeVisible();
-
-    // Confirm order
+    // Submit Order
     await page.locator('button:has-text("Confirmar y Pagar")').click();
 
     // Success Screen & Order Tracking
@@ -265,8 +246,9 @@ test.describe('Nico Perfume - Complete Multi-Page & Feature Test Suite', () => {
     await expect(page.locator('text=Número de Orden:')).toBeVisible();
     await expect(page.locator('text=Número de Seguimiento (Starken/Blue):')).toBeVisible();
 
-    // Close success view
-    await page.locator('button:has-text("Volver a la Tienda")').click();
+    // Return to store
+    await page.locator('a:has-text("Volver a la Tienda")').click();
+    await page.waitForURL('**/catalogo');
   });
 
   test('13. Wishlist & Comparison Matrix', async ({ page }) => {
