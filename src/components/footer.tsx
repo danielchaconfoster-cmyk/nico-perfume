@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { BrandsMarquee } from './brands-marquee';
-import { PhoneCall, Mail, MapPin, ShieldCheck, Truck, MessageCircle } from 'lucide-react';
+import { PhoneCall, Mail, MapPin, ShieldCheck, Truck, MessageCircle, Lock } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -72,6 +72,12 @@ export function Footer() {
                   Finalizar Compra / Checkout
                 </Link>
               </li>
+              <li>
+                <Link href="/admin" className="hover:text-amber-400 transition inline-flex items-center gap-1.5 text-zinc-400">
+                  <Lock className="w-3 h-3 text-amber-500" />
+                  <span>Acceso Admin</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -130,10 +136,19 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-zinc-500">
           <p suppressHydrationWarning>© {new Date().getFullYear()} NICO PERFUME. Todos los derechos reservados.</p>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
             <span>Envíos seguros a todo Chile</span>
             <span>•</span>
             <span>Pago con Webpay Plus & Transferencia</span>
+            <span>•</span>
+            <Link 
+              href="/admin" 
+              className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-amber-400 font-medium transition py-1 px-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800 hover:border-amber-500/40"
+              title="Ingresar al Panel de Administración"
+            >
+              <Lock className="w-3 h-3 text-amber-500" />
+              <span>Admin</span>
+            </Link>
           </div>
         </div>
       </div>

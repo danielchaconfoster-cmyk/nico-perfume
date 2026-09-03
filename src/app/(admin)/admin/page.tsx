@@ -393,120 +393,120 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen pb-20">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-[#0a0f1d]/90 border-b border-amber-500/15 backdrop-blur-md px-6 py-4">
+      <header className="sticky top-0 z-40 bg-[#0a0f1d]/95 border-b border-amber-500/15 backdrop-blur-md px-4 sm:px-6 py-3 sm:py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-serif font-bold text-lg">
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-serif font-bold text-base sm:text-lg shrink-0">
               N
             </div>
             <div>
-              <h1 className="text-lg font-serif font-bold text-white tracking-wide flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-serif font-bold text-white tracking-wide flex items-center gap-2">
                 Nico Perfume
-                <span className="text-[10px] uppercase font-sans tracking-widest bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">
+                <span className="text-[9px] sm:text-[10px] uppercase font-sans tracking-widest bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">
                   Admin Pro
                 </span>
               </h1>
-              <p className="text-xs text-slate-400">Sincronización Automática con Supabase DB</p>
+              <p className="text-[11px] sm:text-xs text-slate-400 hidden xs:block">Sincronización Automática con Supabase DB</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
               <Database className="h-3.5 w-3.5" />
               <span>Base de Datos Conectada</span>
             </div>
 
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition"
             >
               <LogOut className="h-3.5 w-3.5" />
-              <span>Cerrar Sesión</span>
+              <span className="hidden xs:inline">Cerrar Sesión</span>
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 pt-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 pt-6 sm:pt-8">
         {/* KPI Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="p-5 rounded-2xl bg-[#0e1422] border border-slate-800 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-              <Package className="h-6 w-6" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#0e1422] border border-slate-800 flex items-center gap-3 sm:gap-4">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+              <Package className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Perfumes</p>
-              <p className="text-2xl font-bold text-white">{totalProducts || 1371}</p>
+              <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Perfumes</p>
+              <p className="text-xl sm:text-2xl font-bold text-white">{totalProducts || 1371}</p>
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#0e1422] border border-slate-800 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-              <Sliders className="h-6 w-6" />
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#0e1422] border border-slate-800 flex items-center gap-3 sm:gap-4">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+              <Sliders className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Margen Retail</p>
-              <p className="text-2xl font-bold text-white">+{retailMarkup}%</p>
+              <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-semibold">Margen Retail</p>
+              <p className="text-xl sm:text-2xl font-bold text-white">+{retailMarkup}%</p>
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#0e1422] border border-slate-800 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-              <TrendingUp className="h-6 w-6" />
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#0e1422] border border-slate-800 flex items-center gap-3 sm:gap-4">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Estado Catálogo</p>
-              <p className="text-2xl font-bold text-emerald-400">100% Online</p>
+              <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-semibold">Estado Catálogo</p>
+              <p className="text-xl sm:text-2xl font-bold text-emerald-400">100% Online</p>
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#0e1422] border border-slate-800 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-              <History className="h-6 w-6" />
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#0e1422] border border-slate-800 flex items-center gap-3 sm:gap-4">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
+              <History className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Cargas Realizadas</p>
-              <p className="text-2xl font-bold text-white">{logs.length}</p>
+              <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-semibold">Cargas</p>
+              <p className="text-xl sm:text-2xl font-bold text-white">{logs.length}</p>
             </div>
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-slate-800 gap-2 mb-8">
+        {/* Tab Navigation with mobile horizontal scroll */}
+        <div className="flex border-b border-slate-800 gap-1 sm:gap-2 mb-6 sm:mb-8 overflow-x-auto no-scrollbar whitespace-nowrap">
           <button
             onClick={() => setActiveTab('upload')}
-            className={`flex items-center gap-2 pb-4 px-4 text-sm font-semibold border-b-2 transition ${
+            className={`flex items-center gap-1.5 sm:gap-2 pb-3.5 px-3 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition shrink-0 ${
               activeTab === 'upload'
                 ? 'border-amber-500 text-amber-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
             <Upload className="h-4 w-4" />
-            <span>Cargar Lista Semanal Excel</span>
+            <span>Cargar Lista Excel</span>
           </button>
 
           <button
             onClick={() => setActiveTab('products')}
-            className={`flex items-center gap-2 pb-4 px-4 text-sm font-semibold border-b-2 transition ${
+            className={`flex items-center gap-1.5 sm:gap-2 pb-3.5 px-3 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition shrink-0 ${
               activeTab === 'products'
                 ? 'border-amber-500 text-amber-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
             <Tag className="h-4 w-4" />
-            <span>Gestor de Catálogo y Precios</span>
+            <span>Gestor de Precios</span>
           </button>
 
           <button
             onClick={() => setActiveTab('logs')}
-            className={`flex items-center gap-2 pb-4 px-4 text-sm font-semibold border-b-2 transition ${
+            className={`flex items-center gap-1.5 sm:gap-2 pb-3.5 px-3 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition shrink-0 ${
               activeTab === 'logs'
                 ? 'border-amber-500 text-amber-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
             <History className="h-4 w-4" />
-            <span>Historial de Actualizaciones</span>
+            <span>Historial de Cargas</span>
           </button>
         </div>
 
