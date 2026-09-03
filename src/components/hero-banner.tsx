@@ -4,7 +4,7 @@ import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Check, Sparkles, ShieldCheck, Flame } from 'lucide-react';
 import { PixelDissolveBackground, SceneItem, CINEMATIC_SCENES } from './pixel-dissolve-background';
-import { OlfactiveWheelSlider } from './olfactive-wheel-slider';
+import { HeroOlfactiveWheel } from './hero-olfactive-wheel';
 import { ShinyText } from '@/components/react-bits/shiny-text';
 import { Magnet } from '@/components/react-bits/magnet';
 
@@ -36,7 +36,7 @@ export function HeroBanner() {
   const currentScene = activeScene || DEFAULT_SCENE;
 
   return (
-    <section className="relative min-h-[90vh] lg:min-h-[94vh] flex items-center overflow-hidden border-b border-zinc-800 py-6 sm:py-14 lg:py-20">
+    <section className="relative min-h-[90vh] lg:min-h-[94vh] flex items-center overflow-hidden border-b border-zinc-800 py-8 sm:py-14 lg:py-20">
       
       {/* 1. CINEMATIC PIXEL DISSOLVE BACKGROUND ENGINE (Smart mobile portrait focal framing) */}
       <PixelDissolveBackground
@@ -46,7 +46,7 @@ export function HeroBanner() {
 
       {/* 2. FOREGROUND CONTENT GRID (100% Transparent Overlays) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* LEFT COLUMN: BRANDING, HEADLINE & ACTIONS (7 Cols) */}
           <div className="lg:col-span-7 space-y-4 sm:space-y-6 text-left">
@@ -59,7 +59,7 @@ export function HeroBanner() {
 
             {/* Main Luxury Headline */}
             <div className="space-y-1 sm:space-y-2">
-              <h1 className="font-serif text-2xl sm:text-5xl lg:text-6xl text-zinc-100 font-light leading-[1.12] tracking-tight">
+              <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-zinc-100 font-light leading-[1.12] tracking-tight">
                 Encuentra tu <br />
                 <span className="text-gold-gradient font-normal italic">fragancia firma,</span> <br />
                 al mejor precio de Chile.
@@ -112,18 +112,18 @@ export function HeroBanner() {
 
           </div>
 
-          {/* RIGHT COLUMN: FLOATING CIRCULAR 3D TEXT WHEEL SLIDER (5 Cols - No Solid Box) */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center space-y-2 sm:space-y-3">
+          {/* RIGHT COLUMN: 3D OPTION WHEEL (5 Cols - side="right", zero opaque background) */}
+          <div className="lg:col-span-5 flex flex-col items-center lg:items-end justify-center space-y-3">
             
-            {/* 1. Transparent 3D Dial Olfactive Wheel */}
-            <OlfactiveWheelSlider
+            {/* Master Olfactive Option Wheel */}
+            <HeroOlfactiveWheel
               currentGender={selectedGender}
               onGenderChange={handleGenderSelect}
             />
 
-            {/* 2. Floating Minimalist Scene Spotlight (Non-Intrusive Glass Capsule) */}
-            <div className="w-full max-w-xs sm:max-w-sm px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 flex items-center justify-between gap-2.5 text-xs shadow-xl">
-              <div className="space-y-0.5 min-w-0">
+            {/* Minimalist Scene Badge */}
+            <div className="w-full max-w-xs sm:max-w-sm px-3.5 py-2 rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 flex items-center justify-between gap-2.5 text-xs shadow-xl">
+              <div className="space-y-0.5 min-w-0 text-left">
                 <div className="flex items-center gap-1.5 text-[9.5px] sm:text-[10px] uppercase font-bold text-gold-400 tracking-wider">
                   <Flame className="w-3 h-3 text-amber-400 shrink-0" />
                   <span className="truncate">
