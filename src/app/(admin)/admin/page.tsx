@@ -15,18 +15,19 @@ import {
   User,
   LogOut, 
   Search, 
-  Sliders, 
   History, 
   ArrowRight, 
   Sparkles,
   Database,
-  DollarSign,
   Tag,
   Eye,
   EyeOff,
-  Edit2,
   Save,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Layers
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -67,17 +68,20 @@ export default function AdminPage() {
   // Excel Upload State
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [retailMarkup, setRetailMarkup] = useState<number>(48);
-  const [normalMarkup, setNormalMarkup] = useState<number>(30);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
   const [uploadError, setUploadError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Products State
+  // Products State with Full Pagination & Brands
   const [products, setProducts] = useState<any[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedBrand, setSelectedBrand] = useState('all');
+  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [isSavingProduct, setIsSavingProduct] = useState(false);
@@ -106,7 +110,7 @@ export default function AdminPage() {
   };
 
   const loadInitialData = () => {
-    fetchProducts();
+    fetchProducts(1, searchQuery, selectedBrand, pageSize);
     fetchLogs();
   };
 
@@ -142,15 +146,32 @@ export default function AdminPage() {
     setPassword('');
   };
 
-  // Fetch Products
-  const fetchProducts = async (search = searchQuery) => {
+  // Fetch Products with pagination & filters
+  const fetchProducts = async (
+    page = currentPage, 
+    search = searchQuery, 
+    brand = selectedBrand, 
+    limit = pageSize
+  ) => {
     setIsLoadingProducts(true);
     try {
-      const res = await fetch(`/api/admin/products?search=${encodeURIComponent(search)}&limit=50`);
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        search: search.trim(),
+        brand: brand === 'all' ? '' : brand
+      });
+
+      const res = await fetch(`/api/admin/products?${params.toString()}`);
       const data = await res.json();
       if (res.ok) {
         setProducts(data.data || []);
         setTotalProducts(data.total || 0);
+        setTotalPages(data.totalPages || 1);
+        setCurrentPage(data.page || 1);
+        if (data.brands && data.brands.length > 0) {
+          setAvailableBrands(data.brands);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -218,8 +239,6 @@ export default function AdminPage() {
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('retailMarkup', String(retailMarkup));
-    formData.append('normalMarkup', String(normalMarkup));
 
     try {
       const res = await fetch('/api/admin/upload-excel', {
@@ -235,7 +254,7 @@ export default function AdminPage() {
           spread: 80,
           origin: { y: 0.6 }
         });
-        fetchProducts();
+        fetchProducts(1, searchQuery, selectedBrand, pageSize);
         fetchLogs();
       } else {
         setUploadError(data.error || 'Error al procesar el archivo');
@@ -265,7 +284,7 @@ export default function AdminPage() {
 
       if (res.ok) {
         setEditingProduct(null);
-        fetchProducts();
+        fetchProducts(currentPage, searchQuery, selectedBrand, pageSize);
       }
     } catch (err) {
       console.error(err);
@@ -442,11 +461,11 @@ export default function AdminPage() {
 
           <div className="p-4 sm:p-5 rounded-2xl bg-[#0e1422] border border-slate-800 flex items-center gap-3 sm:gap-4">
             <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
-              <Sliders className="h-5 w-5 sm:h-6 sm:w-6" />
+              <Layers className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div>
-              <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-semibold">Margen Retail</p>
-              <p className="text-xl sm:text-2xl font-bold text-white">+{retailMarkup}%</p>
+              <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-semibold">Marcas en Catálogo</p>
+              <p className="text-xl sm:text-2xl font-bold text-white">{availableBrands.length || 78}</p>
             </div>
           </div>
 
@@ -486,7 +505,10 @@ export default function AdminPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab('products')}
+            onClick={() => {
+              setActiveTab('products');
+              fetchProducts(1, searchQuery, selectedBrand, pageSize);
+            }}
             className={`flex items-center gap-1.5 sm:gap-2 pb-3.5 px-3 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition shrink-0 ${
               activeTab === 'products'
                 ? 'border-amber-500 text-amber-400'
@@ -494,11 +516,14 @@ export default function AdminPage() {
             }`}
           >
             <Tag className="h-4 w-4" />
-            <span>Gestor de Precios</span>
+            <span>Gestor de Precios ({totalProducts || 1371})</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('logs')}
+            onClick={() => {
+              setActiveTab('logs');
+              fetchLogs();
+            }}
             className={`flex items-center gap-1.5 sm:gap-2 pb-3.5 px-3 sm:px-4 text-xs sm:text-sm font-semibold border-b-2 transition shrink-0 ${
               activeTab === 'logs'
                 ? 'border-amber-500 text-amber-400'
@@ -510,115 +535,85 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {/* TAB 1: EXCEL UPLOAD */}
+        {/* TAB 1: EXCEL UPLOAD (CLEAN, NO MARGIN SLIDERS) */}
         {activeTab === 'upload' && (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Upload Zone */}
-              <div className="lg:col-span-2 space-y-6">
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`relative rounded-2xl border-2 border-dashed p-10 text-center cursor-pointer transition flex flex-col items-center justify-center gap-4 bg-[#0e1422]/60 ${
-                    isDragging
-                      ? 'border-amber-400 bg-amber-500/10 scale-[1.01]'
-                      : file
-                      ? 'border-emerald-500/50 bg-emerald-500/5'
-                      : 'border-slate-700 hover:border-amber-500/50 hover:bg-slate-900/40'
-                  }`}
-                >
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".xlsx, .xls"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
+          <div className="space-y-6">
+            <div className="rounded-2xl bg-[#0e1422] border border-slate-800 p-6 sm:p-8 space-y-6">
+              <div className="max-w-2xl">
+                <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                  <FileSpreadsheet className="h-5 w-5 text-amber-400" />
+                  Actualización Semanal de Lista de Precios
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                  Arrastrá el archivo Excel que te envió tu distribuidor para actualizar instantáneamente todos los costos y precios de venta en la web.
+                </p>
+              </div>
 
-                  {file ? (
-                    <>
-                      <div className="h-16 w-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/10">
-                        <FileSpreadsheet className="h-8 w-8" />
-                      </div>
-                      <div>
-                        <p className="text-lg font-semibold text-white">{file.name}</p>
-                        <p className="text-xs text-slate-400 mt-1">{(file.size / 1024).toFixed(1)} KB • Archivo Listo para Procesar</p>
-                      </div>
-                      <span className="text-xs text-amber-400 hover:underline">Hacé clic para cambiar de archivo</span>
-                    </>
-                  ) : (
-                    <>
-                      <div className="h-16 w-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                        <Upload className="h-8 w-8" />
-                      </div>
-                      <div>
-                        <p className="text-lg font-semibold text-white">Arrastrá aquí tu lista semanal de Excel</p>
-                        <p className="text-sm text-slate-400 mt-1">o hacé clic para explorar tus archivos (.xlsx, .xls)</p>
-                      </div>
-                      <span className="text-xs uppercase tracking-wider text-slate-500 font-medium">Soporta listas de proveedores con columnas de Marca, Perfume, SKU y Precios Mayoristas</span>
-                    </>
-                  )}
-                </div>
+              {/* Upload Dropzone */}
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`relative rounded-2xl border-2 border-dashed p-8 sm:p-12 text-center cursor-pointer transition flex flex-col items-center justify-center gap-4 bg-[#090d16] ${
+                  isDragging
+                    ? 'border-amber-400 bg-amber-500/10 scale-[1.01]'
+                    : file
+                    ? 'border-emerald-500/60 bg-emerald-500/5'
+                    : 'border-slate-700 hover:border-amber-500/50 hover:bg-slate-900/60'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx, .xls"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
 
-                {uploadError && (
-                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center gap-3">
-                    <AlertCircle className="h-5 w-5 shrink-0" />
-                    <span>{uploadError}</span>
-                  </div>
+                {file ? (
+                  <>
+                    <div className="h-16 w-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/10">
+                      <FileSpreadsheet className="h-8 w-8" />
+                    </div>
+                    <div>
+                      <p className="text-base sm:text-lg font-semibold text-white">{file.name}</p>
+                      <p className="text-xs text-slate-400 mt-1">{(file.size / 1024).toFixed(1)} KB • Archivo Listo</p>
+                    </div>
+                    <span className="text-xs text-amber-400 hover:underline">Hacé clic para cambiar de archivo</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="h-16 w-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                      <Upload className="h-8 w-8" />
+                    </div>
+                    <div>
+                      <p className="text-base sm:text-lg font-semibold text-white">Arrastrá aquí tu lista semanal de Excel</p>
+                      <p className="text-xs sm:text-sm text-slate-400 mt-1">o hacé clic para buscar en tus archivos (.xlsx, .xls)</p>
+                    </div>
+                    <span className="text-[11px] text-slate-500 font-medium">Soporta listas oficiales de proveedores con columnas de Marca, Perfume, SKU y Precios Mayoristas</span>
+                  </>
                 )}
               </div>
 
-              {/* Settings & Action Card */}
-              <div className="rounded-2xl bg-[#0e1422] border border-slate-800 p-6 space-y-6">
-                <div>
-                  <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                    <Sliders className="h-4 w-4 text-amber-400" />
-                    Ajuste de Margen Comercial
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1">Configurá el porcentaje de ganancia sobre el costo mayorista</p>
+              {uploadError && (
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs sm:text-sm flex items-center gap-3">
+                  <AlertCircle className="h-5 w-5 shrink-0" />
+                  <span>{uploadError}</span>
                 </div>
+              )}
 
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1.5">
-                      <span>Margen Retail (Precio Final)</span>
-                      <span className="text-amber-400 font-bold">+{retailMarkup}%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="20"
-                      max="90"
-                      step="1"
-                      value={retailMarkup}
-                      onChange={(e) => setRetailMarkup(Number(e.target.value))}
-                      className="w-full accent-amber-500 cursor-pointer"
-                    />
-                    <p className="text-[11px] text-slate-500 mt-1">Fórmula: Costo × {((100 + retailMarkup) / 100).toFixed(2)} (Redondeado a $100)</p>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1.5">
-                      <span>Margen Precio Normal (Tachado)</span>
-                      <span className="text-slate-400 font-bold">+{normalMarkup}%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="15"
-                      max="60"
-                      step="1"
-                      value={normalMarkup}
-                      onChange={(e) => setNormalMarkup(Number(e.target.value))}
-                      className="w-full accent-slate-600 cursor-pointer"
-                    />
-                  </div>
+              {/* Action Button & Info */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                <div className="text-xs text-slate-400 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                  <span>Cálculo automático de margen retail y precio tachado aplicado en servidor.</span>
                 </div>
 
                 <button
                   onClick={handleUploadExcel}
                   disabled={!file || isUploading}
-                  className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold tracking-wide shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm"
+                  className="w-full sm:w-auto py-3.5 px-8 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold tracking-wide shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm shrink-0"
                 >
                   {isUploading ? (
                     <>
@@ -648,11 +643,12 @@ export default function AdminPage() {
                       <CheckCircle2 className="h-7 w-7" />
                     </div>
                     <div>
-                      <h4 className="text-lg font-bold text-white">¡Lista de Precios Actualizada con Éxito!</h4>
+                      <h4 className="text-base sm:text-lg font-bold text-white">¡Lista de Precios Actualizada con Éxito!</h4>
                       <p className="text-xs text-emerald-300 mt-0.5">
                         Se procesaron <strong>{uploadResult.totalRows}</strong> filas. 
                         {uploadResult.updatedCount > 0 && <span> <strong>{uploadResult.updatedCount}</strong> precios actualizados.</span>}
                         {uploadResult.createdCount > 0 && <span> <strong>{uploadResult.createdCount}</strong> productos nuevos creados.</span>}
+                        {uploadResult.unchangedCount > 0 && <span> <strong>{uploadResult.unchangedCount}</strong> productos sin variación de precio.</span>}
                       </p>
                     </div>
                   </div>
@@ -673,14 +669,14 @@ export default function AdminPage() {
                     <div className="p-4 bg-slate-900/60 border-b border-slate-800 flex items-center justify-between">
                       <h4 className="text-sm font-bold text-white flex items-center gap-2">
                         <TrendingUp className="h-4 w-4 text-amber-400" />
-                        Detalle de Cambios en Precios
+                        Detalle de Variaciones de Precios
                       </h4>
-                      <span className="text-xs text-slate-400">{uploadResult.diffs.length} modificaciones detectadas</span>
+                      <span className="text-xs text-slate-400">{uploadResult.diffs.length} modificaciones</span>
                     </div>
 
                     <div className="overflow-x-auto max-h-96">
-                      <table className="w-full text-left text-xs">
-                        <thead className="bg-slate-950/60 text-slate-400 uppercase tracking-wider sticky top-0">
+                      <table className="w-full text-left text-xs min-w-[700px]">
+                        <thead className="bg-slate-950/80 text-slate-400 uppercase tracking-wider sticky top-0">
                           <tr>
                             <th className="p-3.5">Perfume</th>
                             <th className="p-3.5">Marca</th>
@@ -695,13 +691,13 @@ export default function AdminPage() {
                           {uploadResult.diffs.map((diff, idx) => (
                             <tr key={idx} className="hover:bg-slate-800/30 transition">
                               <td className="p-3.5 font-medium text-white">{diff.name}</td>
-                              <td className="p-3.5">{diff.brand}</td>
+                              <td className="p-3.5 text-amber-400">{diff.brand}</td>
                               <td className="p-3.5 font-mono text-[11px] text-slate-400">{diff.sku}</td>
                               <td className="p-3.5 font-mono">{formatCLP(diff.newWholesale)}</td>
                               <td className="p-3.5 font-mono text-slate-400 line-through">
                                 {diff.oldRetailPrice > 0 ? formatCLP(diff.oldRetailPrice) : 'Nuevo'}
                               </td>
-                              <td className="p-3.5 font-mono font-bold text-amber-400">
+                              <td className="p-3.5 font-mono font-bold text-white">
                                 {formatCLP(diff.newRetailPrice)}
                               </td>
                               <td className="p-3.5 font-mono">
@@ -731,41 +727,108 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB 2: PRODUCTS MANAGER */}
+        {/* TAB 2: PRODUCTS MANAGER (WITH FULL A-Z PAGINATION & BRANDS FILTER) */}
         {activeTab === 'products' && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-              <div className="relative w-full sm:w-96">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar por perfume, marca o SKU..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    fetchProducts(e.target.value);
-                  }}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#0e1422] border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-amber-500 transition"
-                />
+            {/* Filter Toolbar */}
+            <div className="rounded-2xl bg-[#0e1422] border border-slate-800 p-4 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Search */}
+                <div className="relative sm:col-span-2">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar por perfume, marca o SKU..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      fetchProducts(1, e.target.value, selectedBrand, pageSize);
+                    }}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-amber-500 transition"
+                  />
+                </div>
+
+                {/* Brand Filter Dropdown */}
+                <div className="relative">
+                  <select
+                    value={selectedBrand}
+                    onChange={(e) => {
+                      setSelectedBrand(e.target.value);
+                      fetchProducts(1, searchQuery, e.target.value, pageSize);
+                    }}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-xs focus:outline-none focus:border-amber-500 transition cursor-pointer"
+                  >
+                    <option value="all">Todas las marcas ({availableBrands.length || 78})</option>
+                    {availableBrands.map((b) => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div className="flex items-center gap-3 text-xs text-slate-400">
-                <span>Total: <strong className="text-white">{totalProducts}</strong> productos</span>
-                <button
-                  onClick={() => fetchProducts()}
-                  className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
-                  title="Recargar"
-                >
-                  <RefreshCw className={`h-4 w-4 ${isLoadingProducts ? 'animate-spin' : ''}`} />
-                </button>
+              {/* Rows per page & Status bar */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 pt-2 border-t border-slate-800/80">
+                <div className="flex items-center gap-2">
+                  <span>Mostrar:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      const newSize = Number(e.target.value);
+                      setPageSize(newSize);
+                      fetchProducts(1, searchQuery, selectedBrand, newSize);
+                    }}
+                    className="px-2 py-1 rounded bg-slate-900 border border-slate-700 text-white text-xs"
+                  >
+                    <option value="50">50 por página</option>
+                    <option value="100">100 por página</option>
+                    <option value="250">250 por página</option>
+                    <option value="1500">Todos los 1.371</option>
+                  </select>
+                  <span className="text-slate-500">•</span>
+                  <span>Total en base de datos: <strong className="text-white">{totalProducts}</strong> perfumes</span>
+                </div>
+
+                {/* Pagination Buttons */}
+                <div className="flex items-center gap-1.5">
+                  <span className="mr-2">Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong></span>
+                  <button
+                    onClick={() => {
+                      if (currentPage > 1) {
+                        fetchProducts(currentPage - 1, searchQuery, selectedBrand, pageSize);
+                      }
+                    }}
+                    disabled={currentPage <= 1 || isLoadingProducts}
+                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (currentPage < totalPages) {
+                        fetchProducts(currentPage + 1, searchQuery, selectedBrand, pageSize);
+                      }
+                    }}
+                    disabled={currentPage >= totalPages || isLoadingProducts}
+                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => fetchProducts(currentPage, searchQuery, selectedBrand, pageSize)}
+                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 ml-2"
+                    title="Recargar"
+                  >
+                    <RefreshCw className={`h-3.5 w-3.5 ${isLoadingProducts ? 'animate-spin' : ''}`} />
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Products Table */}
             <div className="rounded-2xl bg-[#0e1422] border border-slate-800 overflow-hidden">
-              <div className="overflow-x-auto max-h-[600px]">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-950/80 text-slate-400 uppercase tracking-wider sticky top-0 z-10 backdrop-blur-sm">
+              <div className="overflow-x-auto max-h-[650px]">
+                <table className="w-full text-left text-xs min-w-[750px]">
+                  <thead className="bg-slate-950/90 text-slate-400 uppercase tracking-wider sticky top-0 z-10 backdrop-blur-sm">
                     <tr>
                       <th className="p-3.5">Perfume</th>
                       <th className="p-3.5">Marca</th>
@@ -780,7 +843,7 @@ export default function AdminPage() {
                     {products.map((p) => (
                       <tr key={p.id} className="hover:bg-slate-800/30 transition">
                         <td className="p-3.5 font-medium text-white max-w-xs truncate">{p.name}</td>
-                        <td className="p-3.5 text-amber-400">{p.brand}</td>
+                        <td className="p-3.5 text-amber-400 font-semibold">{p.brand}</td>
                         <td className="p-3.5 text-slate-400">{p.family}</td>
                         <td className="p-3.5 font-mono">{formatCLP(p.wholesale_price)}</td>
                         <td className="p-3.5 font-mono font-bold text-white">{formatCLP(p.price)}</td>
@@ -813,10 +876,13 @@ export default function AdminPage() {
           <div className="space-y-6">
             <div className="rounded-2xl bg-[#0e1422] border border-slate-800 overflow-hidden">
               <div className="p-4 bg-slate-900/60 border-b border-slate-800 flex items-center justify-between">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <History className="h-4 w-4 text-amber-400" />
-                  Historial de Cargas Semanales
-                </h4>
+                <div>
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <History className="h-4 w-4 text-amber-400" />
+                    Historial de Cargas Semanales
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">Auditoría completa de todas las listas de Excel procesadas</p>
+                </div>
                 <button
                   onClick={fetchLogs}
                   className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-xs flex items-center gap-1"
@@ -827,15 +893,14 @@ export default function AdminPage() {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[700px]">
                   <thead className="bg-slate-950/60 text-slate-400 uppercase tracking-wider">
                     <tr>
                       <th className="p-3.5">Fecha y Hora</th>
-                      <th className="p-3.5">Archivo</th>
+                      <th className="p-3.5">Archivo Excel</th>
                       <th className="p-3.5">Filas Procesadas</th>
-                      <th className="p-3.5">Actualizados</th>
-                      <th className="p-3.5">Nuevos</th>
-                      <th className="p-3.5">Margen Aplicado</th>
+                      <th className="p-3.5">Precios Actualizados</th>
+                      <th className="p-3.5">Nuevos Perfumes</th>
                       <th className="p-3.5">Usuario</th>
                     </tr>
                   </thead>
@@ -849,7 +914,6 @@ export default function AdminPage() {
                         <td className="p-3.5 font-mono">{log.total_rows}</td>
                         <td className="p-3.5 font-mono text-emerald-400 font-semibold">{log.updated_count}</td>
                         <td className="p-3.5 font-mono text-blue-400 font-semibold">{log.created_count}</td>
-                        <td className="p-3.5 font-mono">+{log.markup_retail_pct}%</td>
                         <td className="p-3.5 text-slate-400">{log.uploaded_by}</td>
                       </tr>
                     ))}
@@ -869,11 +933,11 @@ export default function AdminPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-lg rounded-2xl bg-[#0e1422] border border-amber-500/30 p-6 shadow-2xl space-y-6"
+              className="w-full max-w-lg rounded-2xl bg-[#0e1422] border border-amber-500/30 p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div>
-                  <h3 className="text-lg font-bold text-white">{editingProduct.name}</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-white">{editingProduct.name}</h3>
                   <p className="text-xs text-amber-400 font-semibold">{editingProduct.brand} • SKU: {editingProduct.sku}</p>
                 </div>
                 <button

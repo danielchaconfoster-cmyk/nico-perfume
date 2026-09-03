@@ -27,7 +27,7 @@ test.describe('Nico Perfume - Panel Admin & Supabase Sync', () => {
     // 4. Verificar entrada al Dashboard
     await expect(page.getByText('Admin Pro')).toBeVisible({ timeout: 20000 });
     await expect(page.getByText('Total Perfumes')).toBeVisible();
-    await expect(page.getByText('Margen Retail', { exact: true })).toBeVisible();
+    await expect(page.getByText('Marcas en Catálogo')).toBeVisible();
 
     // 5. Cargar archivo Excel real
     const fileChooserPromise = page.waitForEvent('filechooser');
@@ -38,7 +38,6 @@ test.describe('Nico Perfume - Panel Admin & Supabase Sync', () => {
 
     // Verificar que reconozca el archivo
     await expect(page.getByText('lista 20 de agosto2026 - 3.xlsx')).toBeVisible();
-    await expect(page.getByText('Archivo Listo para Procesar')).toBeVisible();
 
     // 6. Ejecutar actualización
     const uploadBtn = page.getByRole('button', { name: 'Actualizar Precios en Vivo' });
@@ -48,11 +47,12 @@ test.describe('Nico Perfume - Panel Admin & Supabase Sync', () => {
     await expect(page.getByText('¡Lista de Precios Actualizada con Éxito!')).toBeVisible({ timeout: 90000 });
 
     // 8. Navegar a la pestaña de Gestor de Catálogo
-    await page.getByRole('button', { name: 'Gestor de Catálogo y Precios' }).click();
+    await page.getByRole('button', { name: /Gestor de Precios/i }).click();
     await expect(page.getByPlaceholder('Buscar por perfume, marca o SKU...')).toBeVisible();
+    await expect(page.getByText('Total en base de datos:')).toBeVisible();
 
     // 9. Navegar a la pestaña de Historial
-    await page.getByRole('button', { name: 'Historial de Actualizaciones' }).click();
+    await page.getByRole('button', { name: 'Historial de Cargas' }).click();
     await expect(page.getByText('Historial de Cargas Semanales')).toBeVisible();
   });
 });

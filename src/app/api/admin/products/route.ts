@@ -11,32 +11,42 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50', 10);
     const offset = (page - 1) * limit;
 
+    // 1. Build main products query
     let query = supabaseAdmin
       .from('perfumes')
       .select('*', { count: 'exact' });
 
     if (search) {
-      query = query.or(`name.ilike.%${search}%,brand.ilike.%${search}%,sku.ilike.%${search}%`);
+      query = query.or(`name.ilike.%${search}%,brand.ilike.%${search}%,sku.ilike.%${search}%,full_name.ilike.%${search}%`);
     }
-    if (brand) {
+    if (brand && brand !== 'all') {
       query = query.eq('brand', brand);
     }
-    if (family) {
+    if (family && family !== 'all') {
       query = query.eq('family', family);
     }
 
     const { data, count, error } = await query
       .order('brand', { ascending: true })
+      .order('name', { ascending: true })
       .range(offset, offset + limit - 1);
 
     if (error) throw error;
 
+    // 2. Fetch distinct brands list for the filter dropdown
+    const { data: brandsData } = await supabaseAdmin
+      .from('perfumes')
+      .select('brand');
+
+    const uniqueBrands = Array.from(new Set((brandsData || []).map((b: any) => b.brand).filter(Boolean))).sort();
+
     return NextResponse.json({
-      data,
+      data: data || [],
       total: count || 0,
       page,
       limit,
-      totalPages: Math.ceil((count || 0) / limit)
+      totalPages: Math.ceil((count || 0) / limit),
+      brands: uniqueBrands
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
