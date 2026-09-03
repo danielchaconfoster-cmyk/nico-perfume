@@ -247,13 +247,14 @@ export function CartDrawer() {
 
               {/* Action Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                <button
-                  onClick={handleGoToCheckout}
+                <Link
+                  href="/checkout"
+                  onClick={() => setIsCartOpen(false)}
                   className="w-full py-3.5 px-4 rounded-xl bg-zinc-100 hover:bg-gold-400 text-black font-semibold text-xs tracking-[0.15em] uppercase transition flex items-center justify-center gap-2 shadow-lg shadow-white/5 active:scale-[0.99]"
                 >
                   <span>Ir al Checkout</span>
                   <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                </Link>
 
                 <button
                   onClick={handleWhatsAppCheckout}
