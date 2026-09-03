@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -15,6 +15,7 @@ import {
   Grid3X3,
   Layers
 } from 'lucide-react';
+import { fuzzyMatchPerfume } from '@/lib/fuzzy-search';
 
 interface ProductGridProps {
   perfumes: Perfume[];
@@ -91,17 +92,9 @@ function ProductGridContent({ perfumes, brands, families, genders }: ProductGrid
   const filteredPerfumes = useMemo(() => {
     let result = [...perfumes];
 
-    // 1. Live Search
+    // 1. Live Intelligent Fuzzy & Typo-Tolerant Search
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        p =>
-          p.name.toLowerCase().includes(q) ||
-          p.brand.toLowerCase().includes(q) ||
-          p.fullName.toLowerCase().includes(q) ||
-          p.sku.toLowerCase().includes(q) ||
-          p.allNotes.some(n => n.toLowerCase().includes(q))
-      );
+      result = result.filter(p => fuzzyMatchPerfume(p, searchQuery));
     }
 
     // 2. Gender (Case-Insensitive)

@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Perfume, CartItem, CustomerShippingInfo } from '@/types/perfume';
+import { trackAddToCart } from '@/lib/analytics';
 
 interface CartContextType {
   cart: CartItem[];
@@ -145,6 +146,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
     showToast(`${perfume.name} agregado a tu bolsa`);
     setIsCartOpen(true);
+    try {
+      trackAddToCart(perfume, quantity);
+    } catch (e) {
+      console.error('Analytics tracking error', e);
+    }
   };
 
   const removeFromCart = (perfumeId: string) => {

@@ -102,6 +102,16 @@ test.describe('Nico Perfume - Complete Multi-Page & Feature Test Suite', () => {
     // Verify search results contain King
     await expect(page.locator('h3:has-text("King")').first()).toBeVisible();
 
+    // Typo tolerance: 'carolina erera' finds Carolina Herrera
+    await searchInput.fill('carolina erera');
+    await page.waitForTimeout(300);
+    await expect(page.locator('h3:has-text("Carolina Herrera"), p:has-text("Carolina Herrera")').first()).toBeVisible();
+
+    // Acronym tolerance: '9pm' finds Afnan 9 PM
+    await searchInput.fill('9pm');
+    await page.waitForTimeout(300);
+    await expect(page.locator('h3:has-text("9 PM")').first()).toBeVisible();
+
     // Clear search
     await searchInput.fill('');
     await page.waitForTimeout(200);

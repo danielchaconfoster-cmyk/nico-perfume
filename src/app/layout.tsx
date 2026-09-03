@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { CartProvider } from '@/lib/cart-context';
+import { AnalyticsScripts } from '@/components/analytics-scripts';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -60,6 +61,7 @@ export default function RootLayout({
         <CartProvider>
           {children}
         </CartProvider>
+        <AnalyticsScripts />
       </body>
     </html>
   );

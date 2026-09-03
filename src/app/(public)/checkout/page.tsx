@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '@/lib/cart-context';
 import { formatCLP, generateWhatsAppOrderUrl } from '@/lib/utils';
+import { trackInitiateCheckout, trackPurchase } from '@/lib/analytics';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -56,6 +57,17 @@ export default function CheckoutPage() {
   const shippingCost = isFreeShipping ? 0 : 3990;
   const finalTotal = Math.max(0, cartTotal - discountAmount + shippingCost);
 
+  // Track InitiateCheckout on page load if cart has items
+  useEffect(() => {
+    if (cartTotal > 0) {
+      try {
+        trackInitiateCheckout(cartTotal, cart.length);
+      } catch (e) {
+        console.error('Analytics error', e);
+      }
+    }
+  }, [cartTotal, cart.length]);
+
   const handleSubmitOrder = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -73,6 +85,23 @@ export default function CheckoutPage() {
     setOrderId(generatedId);
     setTrackingNumber(generatedTracking);
     setStep('success');
+
+    // Track Purchase conversion in Meta & GA4
+    try {
+      trackPurchase(
+        generatedId,
+        finalTotal,
+        cart.map(i => ({
+          id: i.perfume.id,
+          name: i.perfume.name,
+          price: i.perfume.price,
+          quantity: i.quantity,
+        }))
+      );
+    } catch (e) {
+      console.error('Analytics purchase tracking error', e);
+    }
+
     clearCart();
 
     try {
