@@ -1,7 +1,42 @@
 import perfumesData from '@/data/perfumes.json';
 import { Perfume } from '@/types/perfume';
+import { supabase } from '@/lib/supabase';
 
 export const allPerfumes: Perfume[] = perfumesData as Perfume[];
+
+export function mapDbToPerfume(row: any): Perfume {
+  return {
+    id: row.id,
+    sku: row.sku,
+    ean: row.ean || '',
+    name: row.name,
+    fullName: row.full_name || row.name,
+    brand: row.brand,
+    gender: row.gender,
+    format: row.format || 'REGULAR',
+    volume: row.volume || 100,
+    concentration: row.concentration || 'Eau de Parfum',
+    family: row.family,
+    price: row.price,
+    originalPrice: row.original_price,
+    wholesalePrice: row.wholesale_price,
+    stock: row.stock ?? 15,
+    topNotes: Array.isArray(row.top_notes) ? row.top_notes : [],
+    heartNotes: Array.isArray(row.heart_notes) ? row.heart_notes : [],
+    baseNotes: Array.isArray(row.base_notes) ? row.base_notes : [],
+    allNotes: Array.isArray(row.all_notes) ? row.all_notes : [],
+    vibe: row.vibe || '',
+    longevity: row.longevity || '',
+    sillage: row.sillage || '',
+    occasions: Array.isArray(row.occasions) ? row.occasions : [],
+    rating: Number(row.rating) || 4.8,
+    reviews: Number(row.reviews) || 25,
+    image: row.image || '',
+    isBestSeller: Boolean(row.is_best_seller),
+    isNew: Boolean(row.is_new),
+    description: row.description || ''
+  };
+}
 
 /**
  * Convierte un texto a formato slug seguro para URL y SEO
@@ -82,6 +117,26 @@ export function getPerfumeBySlug(slug: string): Perfume | undefined {
   }
 
   return undefined;
+}
+
+/**
+ * Obtiene todos los perfumes frescos de Supabase con fallback instantáneo a JSON
+ */
+export async function getLivePerfumes(): Promise<Perfume[]> {
+  try {
+    const { data, error } = await supabase
+      .from('perfumes')
+      .select('*')
+      .order('brand', { ascending: true });
+
+    if (error || !data || data.length === 0) {
+      return allPerfumes;
+    }
+
+    return data.map(mapDbToPerfume);
+  } catch {
+    return allPerfumes;
+  }
 }
 
 /**

@@ -1,6 +1,7 @@
-'use client';
+﻿'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Perfume } from '@/types/perfume';
 import { ProductCard } from './product-card';
 import {
@@ -24,16 +25,57 @@ interface ProductGridProps {
 
 const ITEMS_PER_PAGE = 24;
 
-export function ProductGrid({ perfumes, brands, families, genders }: ProductGridProps) {
+function ProductGridContent({ perfumes, brands, families, genders }: ProductGridProps) {
+  const searchParams = useSearchParams();
+
   // State
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGender, setSelectedGender] = useState<string>('Todos');
   const [selectedBrand, setSelectedBrand] = useState<string>('Todas');
   const [selectedFamily, setSelectedFamily] = useState<string>('Todas');
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>('Todos');
+  const [selectedOccasion, setSelectedOccasion] = useState<string>('Todas');
   const [sortBy, setSortBy] = useState<string>('popular');
   const [page, setPage] = useState(1);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [activeSpecial, setActiveSpecial] = useState<string | null>(null);
+
+  // Sync state with URL query params (?genero=..., ?marca=..., ?ocasion=..., ?q=...)
+  useEffect(() => {
+    if (!searchParams) return;
+
+    // 1. Gender
+    const generoParam = searchParams.get('genero');
+    if (generoParam) {
+      const match = genders.find(g => g.toLowerCase() === generoParam.toLowerCase());
+      setSelectedGender(match || generoParam);
+    }
+
+    // 2. Brand
+    const marcaParam = searchParams.get('marca');
+    if (marcaParam) {
+      const match = brands.find(b => b.toLowerCase() === marcaParam.toLowerCase());
+      setSelectedBrand(match || marcaParam);
+    }
+
+    // 3. Search query
+    const qParam = searchParams.get('q');
+    if (qParam) {
+      setSearchQuery(qParam);
+    }
+
+    // 4. Occasion
+    const ocasionParam = searchParams.get('ocasion');
+    if (ocasionParam) {
+      setSelectedOccasion(ocasionParam);
+    }
+
+    // 5. Special filters (?filtro=arabes | ?filtro=bestseller)
+    const filtroParam = searchParams.get('filtro');
+    if (filtroParam) {
+      setActiveSpecial(filtroParam);
+    }
+  }, [searchParams, genders, brands]);
 
   // Quick category pills
   const categoryPills = [
@@ -44,8 +86,6 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
     { label: 'Joyas Árabes', gender: 'Todos', filterSpecial: 'arabes' },
     { label: 'Más Vendidos', gender: 'Todos', filterSpecial: 'bestseller' },
   ];
-
-  const [activeSpecial, setActiveSpecial] = useState<string | null>(null);
 
   // Filtered perfumes calculation
   const filteredPerfumes = useMemo(() => {
@@ -64,9 +104,9 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
       );
     }
 
-    // 2. Gender
+    // 2. Gender (Case-Insensitive)
     if (selectedGender !== 'Todos') {
-      result = result.filter(p => p.gender === selectedGender);
+      result = result.filter(p => p.gender.toLowerCase() === selectedGender.toLowerCase());
     }
 
     // 3. Special filters
@@ -77,9 +117,9 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
       result = result.filter(p => p.isBestSeller);
     }
 
-    // 4. Brand
+    // 4. Brand (Case-Insensitive)
     if (selectedBrand !== 'Todas') {
-      result = result.filter(p => p.brand === selectedBrand);
+      result = result.filter(p => p.brand.toLowerCase() === selectedBrand.toLowerCase());
     }
 
     // 5. Olfactory Family
@@ -87,7 +127,18 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
       result = result.filter(p => p.family === selectedFamily);
     }
 
-    // 6. Price Range
+    // 6. Occasion / Vibe (Flexible match in vibe/description/occasions/allNotes)
+    if (selectedOccasion !== 'Todas') {
+      const occ = selectedOccasion.toLowerCase();
+      result = result.filter(p =>
+        (p.description && p.description.toLowerCase().includes(occ)) ||
+        (p.vibe && p.vibe.toLowerCase().includes(occ)) ||
+        (p.occasions && p.occasions.some(o => o.toLowerCase().includes(occ))) ||
+        p.allNotes.some(n => n.toLowerCase().includes(occ))
+      );
+    }
+
+    // 7. Price Range
     if (selectedPriceRange !== 'Todos') {
       if (selectedPriceRange === 'under30') result = result.filter(p => p.price < 30000);
       else if (selectedPriceRange === '30to50') result = result.filter(p => p.price >= 30000 && p.price <= 50000);
@@ -95,7 +146,7 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
       else if (selectedPriceRange === 'over80') result = result.filter(p => p.price > 80000);
     }
 
-    // 7. Sort
+    // 8. Sort
     if (sortBy === 'price-asc') {
       result.sort((a, b) => a.price - b.price);
     } else if (sortBy === 'price-desc') {
@@ -117,6 +168,7 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
     activeSpecial,
     selectedBrand,
     selectedFamily,
+    selectedOccasion,
     selectedPriceRange,
     sortBy
   ]);
@@ -134,6 +186,7 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
     setSelectedBrand('Todas');
     setSelectedFamily('Todas');
     setSelectedPriceRange('Todos');
+    setSelectedOccasion('Todas');
     setActiveSpecial(null);
     setSortBy('popular');
     setPage(1);
@@ -143,6 +196,7 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
     (selectedGender !== 'Todos' ? 1 : 0) +
     (selectedBrand !== 'Todas' ? 1 : 0) +
     (selectedFamily !== 'Todas' ? 1 : 0) +
+    (selectedOccasion !== 'Todas' ? 1 : 0) +
     (selectedPriceRange !== 'Todos' ? 1 : 0) +
     (activeSpecial ? 1 : 0) +
     (searchQuery ? 1 : 0);
@@ -158,56 +212,45 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
               <span>Colección Completa</span>
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl text-zinc-100 font-light">
-              Explora Nuestro <span className="italic text-gold-gradient font-normal">Catálogo</span>
+              Catálogo de Fragancias & Joyas de Autor
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-              Mostrando <span className="text-zinc-200 font-semibold">{filteredPerfumes.length}</span> fragancias de alta gama disponibles
+            <p className="text-zinc-400 text-sm mt-1.5 font-light max-w-2xl">
+              Explora más de 1.300 perfumes 100% originales sellados. Filtra por casa, género, familia olfativa o rango de precio.
             </p>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-            <input
-              type="text"
-              placeholder="Buscar por nombre, marca o nota..."
-              value={searchQuery}
-              onChange={e => {
-                setSearchQuery(e.target.value);
-                setPage(1);
-              }}
-              className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-gold-500 transition shadow-inner"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-zinc-400 font-mono">
+              Mostrando <strong className="text-gold-300 font-semibold">{filteredPerfumes.length}</strong> de {perfumes.length} perfumes
+            </span>
           </div>
         </div>
 
-        {/* Category Pills Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-none mb-6">
-          {categoryPills.map((pill, idx) => {
-            const isActive =
-              (pill.filterSpecial === activeSpecial && pill.gender === selectedGender) ||
-              (!pill.filterSpecial && !activeSpecial && pill.gender === selectedGender);
+        {/* Quick Category Tabs / Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 scrollbar-none">
+          {categoryPills.map(pill => {
+            const isGenderMatch = pill.gender !== 'Todos' && selectedGender.toLowerCase() === pill.gender.toLowerCase() && !activeSpecial;
+            const isSpecialMatch = pill.filterSpecial && activeSpecial === pill.filterSpecial;
+            const isAllMatch = pill.gender === 'Todos' && !pill.filterSpecial && selectedGender === 'Todos' && !activeSpecial;
+            const isActive = isGenderMatch || isSpecialMatch || isAllMatch;
 
             return (
               <button
-                key={idx}
+                key={pill.label}
                 onClick={() => {
-                  setSelectedGender(pill.gender);
-                  setActiveSpecial(pill.filterSpecial);
+                  if (pill.filterSpecial) {
+                    setActiveSpecial(pill.filterSpecial);
+                    setSelectedGender('Todos');
+                  } else {
+                    setActiveSpecial(null);
+                    setSelectedGender(pill.gender);
+                  }
                   setPage(1);
                 }}
-                className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wider whitespace-nowrap transition border ${
+                className={`px-4 py-2 rounded-full text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all duration-300 ${
                   isActive
-                    ? 'bg-gold-500 text-black border-gold-400 shadow-md shadow-gold-500/20'
-                    : 'bg-zinc-900/60 text-zinc-300 border-zinc-800 hover:border-gold-500/40 hover:text-gold-300'
+                    ? 'bg-gradient-to-r from-gold-500 to-gold-400 text-black font-semibold shadow-lg shadow-gold-500/20 scale-[1.02]'
+                    : 'bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-zinc-800'
                 }`}
               >
                 {pill.label}
@@ -216,142 +259,149 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
           })}
         </div>
 
-        {/* Filter Controls & Sort Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 mb-8">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsFilterDrawerOpen(!isFilterDrawerOpen)}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-700/80 hover:border-gold-500/50 text-xs font-medium text-zinc-200 transition"
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5 text-gold-400" />
-              <span>Filtros Avanzados</span>
-              {activeFilterCount > 0 && (
-                <span className="w-4 h-4 rounded-full bg-gold-500 text-black text-[10px] font-bold flex items-center justify-center">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
-
-            {activeFilterCount > 0 && (
+        {/* Search and Main Filters Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-8">
+          
+          {/* Search Input */}
+          <div className="md:col-span-4 relative">
+            <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Buscar por nombre, casa, nota (ej. Vainilla, Oud)..."
+              className="w-full pl-10 pr-9 py-2.5 bg-zinc-900/90 border border-zinc-800 rounded-xl text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-gold-500 transition shadow-inner"
+            />
+            {searchQuery && (
               <button
-                onClick={resetFilters}
-                className="text-xs text-zinc-400 hover:text-rose-400 transition flex items-center gap-1"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
               >
-                <X className="w-3 h-3" /> Limpiar todo
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          {/* Sort Selector */}
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-zinc-400 hidden sm:inline">Ordenar por:</span>
+          {/* Brand Filter */}
+          <div className="md:col-span-3">
+            <select
+              value={selectedBrand}
+              onChange={e => {
+                setSelectedBrand(e.target.value);
+                setPage(1);
+              }}
+              className="w-full py-2.5 px-3 bg-zinc-900/90 border border-zinc-800 rounded-xl text-xs text-zinc-300 focus:outline-none focus:border-gold-500 transition cursor-pointer"
+            >
+              <option value="Todas">Todas las Marcas ({brands.length})</option>
+              {brands.map(b => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Olfactory Family Filter */}
+          <div className="md:col-span-3">
+            <select
+              value={selectedFamily}
+              onChange={e => {
+                setSelectedFamily(e.target.value);
+                setPage(1);
+              }}
+              className="w-full py-2.5 px-3 bg-zinc-900/90 border border-zinc-800 rounded-xl text-xs text-zinc-300 focus:outline-none focus:border-gold-500 transition cursor-pointer"
+            >
+              <option value="Todas">Todas las Familias ({families.length})</option>
+              {families.map(f => (
+                <option key={f} value={f}>
+                  {f}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sort By */}
+          <div className="md:col-span-2">
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
-              className="bg-zinc-900 border border-zinc-700/80 text-zinc-200 rounded-xl px-3 py-2 focus:outline-none focus:border-gold-500 text-xs"
+              className="w-full py-2.5 px-3 bg-zinc-900/90 border border-zinc-800 rounded-xl text-xs text-zinc-300 focus:outline-none focus:border-gold-500 transition cursor-pointer font-medium"
             >
-              <option value="popular">Más Populares & Vendidos</option>
+              <option value="popular">Más Populares</option>
               <option value="price-asc">Precio: Menor a Mayor</option>
               <option value="price-desc">Precio: Mayor a Menor</option>
               <option value="rating">Mejor Calificados</option>
               <option value="name">Nombre: A - Z</option>
             </select>
           </div>
+
         </div>
 
-        {/* Advanced Filters Expandable Panel */}
-        {isFilterDrawerOpen && (
-          <div className="p-6 rounded-2xl bg-zinc-950 border border-gold-500/20 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fadeIn">
-            {/* Brand Filter */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gold-400 mb-2">
-                Marca / Casa Olfativa
-              </label>
-              <select
-                value={selectedBrand}
-                onChange={e => {
-                  setSelectedBrand(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs rounded-xl p-2.5 focus:outline-none focus:border-gold-500"
-              >
-                <option value="Todas">Todas las Marcas ({brands.length})</option>
-                {brands.map(b => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
-            </div>
+        {/* Active Filters Badges */}
+        {activeFilterCount > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-6 p-3 rounded-2xl bg-zinc-950/60 border border-zinc-800/80">
+            <span className="text-[11px] text-zinc-400 font-medium mr-1 flex items-center gap-1">
+              <Filter className="w-3 h-3 text-gold-400" /> Filtros Activos ({activeFilterCount}):
+            </span>
 
-            {/* Olfactory Family Filter */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gold-400 mb-2">
-                Familia Olfativa
-              </label>
-              <select
-                value={selectedFamily}
-                onChange={e => {
-                  setSelectedFamily(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs rounded-xl p-2.5 focus:outline-none focus:border-gold-500"
-              >
-                <option value="Todas">Todas las Familias ({families.length})</option>
-                {families.map(f => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {selectedGender !== 'Todos' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-850 text-gold-300 border border-gold-500/30 text-[11px]">
+                Género: {selectedGender}
+                <button onClick={() => setSelectedGender('Todos')} className="hover:text-white">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
 
-            {/* Price Range Filter */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gold-400 mb-2">
-                Rango de Precio
-              </label>
-              <select
-                value={selectedPriceRange}
-                onChange={e => {
-                  setSelectedPriceRange(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs rounded-xl p-2.5 focus:outline-none focus:border-gold-500"
-              >
-                <option value="Todos">Cualquier Precio</option>
-                <option value="under30">Menos de $30.000 CLP</option>
-                <option value="30to50">$30.000 - $50.000 CLP</option>
-                <option value="50to80">$50.000 - $80.000 CLP</option>
-                <option value="over80">Más de $80.000 CLP</option>
-              </select>
-            </div>
+            {selectedBrand !== 'Todas' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-850 text-gold-300 border border-gold-500/30 text-[11px]">
+                Marca: {selectedBrand}
+                <button onClick={() => setSelectedBrand('Todas')} className="hover:text-white">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
 
-            {/* Gender Filter */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gold-400 mb-2">
-                Género
-              </label>
-              <select
-                value={selectedGender}
-                onChange={e => {
-                  setSelectedGender(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs rounded-xl p-2.5 focus:outline-none focus:border-gold-500"
-              >
-                <option value="Todos">Todos los Géneros</option>
-                {genders.map(g => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {selectedFamily !== 'Todas' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-850 text-gold-300 border border-gold-500/30 text-[11px]">
+                Familia: {selectedFamily}
+                <button onClick={() => setSelectedFamily('Todas')} className="hover:text-white">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+
+            {activeSpecial && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-850 text-gold-300 border border-gold-500/30 text-[11px]">
+                Colección: {activeSpecial === 'arabes' ? 'Joyas Árabes' : 'Más Vendidos'}
+                <button onClick={() => setActiveSpecial(null)} className="hover:text-white">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+
+            {searchQuery && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-850 text-gold-300 border border-gold-500/30 text-[11px]">
+                Búsqueda: &ldquo;{searchQuery}&rdquo;
+                <button onClick={() => setSearchQuery('')} className="hover:text-white">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+
+            <button
+              onClick={resetFilters}
+              className="text-[11px] text-zinc-400 hover:text-gold-300 underline underline-offset-4 ml-auto"
+            >
+              Limpiar todos
+            </button>
           </div>
         )}
 
-        {/* Product Grid */}
+        {/* Products Grid */}
         {displayedPerfumes.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {displayedPerfumes.map(perfume => (
@@ -359,17 +409,19 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 px-4 rounded-2xl bg-zinc-950 border border-zinc-800">
-            <Filter className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-            <h3 className="text-base font-medium text-zinc-200">
-              No encontramos perfumes con esos filtros
-            </h3>
-            <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
-              Prueba modificando los términos de búsqueda o limpiando los filtros seleccionados.
-            </p>
+          <div className="py-20 text-center space-y-4 bg-zinc-950/40 rounded-3xl border border-zinc-850">
+            <div className="w-12 h-12 mx-auto rounded-full bg-zinc-900 flex items-center justify-center text-gold-400">
+              <Search className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-serif text-lg text-zinc-200">No encontramos perfumes con esos filtros</h3>
+              <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                Prueba buscando con otro término o limpiando los filtros seleccionados para ver más de 1.300 opciones.
+              </p>
+            </div>
             <button
               onClick={resetFilters}
-              className="mt-5 px-5 py-2.5 rounded-xl bg-gold-500 text-black text-xs font-semibold tracking-wider uppercase hover:brightness-110 transition"
+              className="px-5 py-2.5 rounded-full bg-gold-500 hover:bg-gold-400 text-black font-semibold text-xs uppercase tracking-wider transition shadow-lg shadow-gold-500/20"
             >
               Ver Todo el Catálogo
             </button>
@@ -378,17 +430,27 @@ export function ProductGrid({ perfumes, brands, families, genders }: ProductGrid
 
         {/* Load More Button */}
         {hasMore && (
-          <div className="mt-12 text-center">
+          <div className="pt-12 text-center">
             <button
-              onClick={() => setPage(prev => prev + 1)}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-gold-300 border border-gold-500/40 hover:border-gold-400 text-xs font-semibold tracking-wider uppercase transition shadow-lg active:scale-95"
+              onClick={() => setPage(p => p + 1)}
+              className="px-8 py-3.5 rounded-full bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700/80 hover:border-gold-500/40 text-xs font-semibold tracking-wider uppercase transition shadow-xl hover:shadow-gold-500/10 active:scale-95"
             >
-              <span>Cargar Más Fragancias ({filteredPerfumes.length - displayedPerfumes.length} restantes)</span>
-              <ChevronDown className="w-4 h-4" />
+              Cargar Más Perfumes ({filteredPerfumes.length - displayedPerfumes.length} restantes)
             </button>
           </div>
         )}
+
       </div>
     </section>
   );
 }
+
+export function ProductGrid(props: ProductGridProps) {
+  return (
+    <Suspense fallback={<div className="py-16 text-center text-zinc-500 text-xs">Cargando catálogo...</div>}>
+      <ProductGridContent {...props} />
+    </Suspense>
+  );
+}
+
+export default ProductGrid;

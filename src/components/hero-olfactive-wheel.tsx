@@ -29,7 +29,7 @@ const MODES: ModeOption[] = [
     getSubtitle: (item: string) => {
       switch (item) {
         case 'HOMBRE':
-          return '+650 fragancias masculinas de alta proyección';
+          return '+650 fragancias masculinas con batch code verificado';
         case 'MUJER':
           return '+500 fragancias dulces, florales y virales';
         case 'UNISEX':
@@ -61,7 +61,7 @@ const MODES: ModeOption[] = [
       'CAROLINA HERRERA',
     ],
     getHref: (item: string) => `/catalogo?marca=${encodeURIComponent(item)}`,
-    getSubtitle: (item: string) => `Colección oficial de ${item} con batch code verificable`,
+    getSubtitle: (item: string) => `Colección oficial de ${item} con entrega rápida a todo Chile`,
   },
   {
     id: 'ocasion',
@@ -114,6 +114,7 @@ export function HeroOlfactiveWheel({
     [activeMode, onGenderChange]
   );
 
+  // DIRECT CLICK NAVIGATION: Clicking any item opens the catalog filtered directly!
   const handleItemSelect = useCallback(
     (_index: number, item: string) => {
       const href = currentModeConfig.getHref(item);
@@ -151,7 +152,7 @@ export function HeroOlfactiveWheel({
         })}
       </div>
 
-      {/* 2. OPTION WHEEL (Right Curved 3D Cylinder) */}
+      {/* 2. OPTION WHEEL (Continuous Smooth 3D Momentum Physics) */}
       <div className="w-full relative py-1 sm:py-2">
         <OptionWheel
           items={currentModeConfig.items}
@@ -159,13 +160,13 @@ export function HeroOlfactiveWheel({
           textColor="#71717a"
           activeColor="#ffffff"
           side="right"
-          fontSize={2.3}
+          fontSize={2.4}
           spacing={1.3}
-          curve={1}
-          tilt={6}
+          curve={1.1}
+          tilt={6.5}
           blur={2.5}
           fade={0.3}
-          smoothing={220}
+          smoothing={0.16}
           inset={0}
           loop={true}
           draggable={true}
