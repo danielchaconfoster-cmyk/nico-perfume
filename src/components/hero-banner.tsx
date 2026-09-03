@@ -1,18 +1,35 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Check, Sparkles, Layers, Flame, Eye, Compass, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Check, Sparkles, Flame, Compass, ShieldCheck } from 'lucide-react';
 import { PixelDissolveBackground, SceneItem, CINEMATIC_SCENES } from './pixel-dissolve-background';
 import { ShinyText } from '@/components/react-bits/shiny-text';
 import { Magnet } from '@/components/react-bits/magnet';
 import { SpotlightCard } from '@/components/react-bits/spotlight-card';
 
+const DEFAULT_SCENE: SceneItem = {
+  id: 'p1-perfume',
+  type: 'perfume',
+  pairIndex: 0,
+  gender: 'Mujer',
+  title: 'Lattafa Yara Rosa (Extrait)',
+  subtitle: 'Extracto dulce de vainilla, orquídea y malvavisco',
+  imageUrl: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=1400&auto=format&fit=crop&q=80',
+};
+
 export function HeroBanner() {
-  const [activeScene, setActiveScene] = useState<SceneItem>(CINEMATIC_SCENES[0]);
+  const [activeScene, setActiveScene] = useState<SceneItem>(CINEMATIC_SCENES?.[0] || DEFAULT_SCENE);
   const [manualGenderFilter, setManualGenderFilter] = useState<'Hombre' | 'Mujer' | 'Unisex' | null>(null);
 
-  const displayedGender = manualGenderFilter || activeScene.gender;
+  const currentScene = activeScene || DEFAULT_SCENE;
+  const displayedGender = manualGenderFilter || currentScene?.gender || 'Mujer';
+
+  const handleSceneChange = useCallback((scene: SceneItem) => {
+    if (scene && scene.gender) {
+      setActiveScene(scene);
+    }
+  }, []);
 
   const genderList: Array<{ label: 'HOMBRE' | 'MUJER' | 'UNISEX'; value: 'Hombre' | 'Mujer' | 'Unisex'; count: string }> = [
     { label: 'HOMBRE', value: 'Hombre', count: '+650 fragancias' },
@@ -24,7 +41,7 @@ export function HeroBanner() {
     <section className="relative min-h-[90vh] lg:min-h-[94vh] flex items-center overflow-hidden border-b border-zinc-800 py-16 sm:py-24">
       
       {/* 1. CINEMATIC PIXEL DISSOLVE BACKGROUND ENGINE (Full Bleed Edge-to-Edge) */}
-      <PixelDissolveBackground onSceneChange={setActiveScene} />
+      <PixelDissolveBackground onSceneChange={handleSceneChange} />
 
       {/* 2. FOREGROUND CONTENT GRID */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
@@ -106,7 +123,7 @@ export function HeroBanner() {
                   <Compass className="w-3.5 h-3.5 text-gold-400" /> Navegación Olfativa
                 </span>
                 <span className="text-[10px] font-mono text-zinc-400 uppercase">
-                  {activeScene.type === 'perfume' ? '• Frasco de Colección' : '• Modelo en Aplicación'}
+                  {currentScene?.type === 'perfume' ? '• Frasco de Colección' : '• Modelo en Aplicación'}
                 </span>
               </div>
 
@@ -153,7 +170,7 @@ export function HeroBanner() {
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-[10.5px] font-bold uppercase tracking-wider text-gold-300 flex items-center gap-1.5">
                     <Flame className="w-3.5 h-3.5 text-amber-400" />
-                    En Pantalla: {activeScene.gender}
+                    En Pantalla: {currentScene?.gender || 'Fragancia'}
                   </span>
                   <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">
                     Transición Activa
@@ -161,10 +178,10 @@ export function HeroBanner() {
                 </div>
 
                 <h3 className="text-sm font-semibold text-zinc-100 line-clamp-1">
-                  {activeScene.title}
+                  {currentScene?.title || 'Fragancia Destacada'}
                 </h3>
                 <p className="text-xs text-zinc-400 font-light leading-snug">
-                  {activeScene.subtitle}
+                  {currentScene?.subtitle || 'Extracto puro de alta proyección'}
                 </p>
 
                 <div className="pt-2 flex items-center justify-between border-t border-zinc-850/80 text-xs">
