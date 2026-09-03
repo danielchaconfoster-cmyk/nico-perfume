@@ -27,6 +27,10 @@ export async function POST(req: NextRequest) {
       uploadedBy: 'Nico Admin'
     });
 
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'Error al procesar archivo' }, { status: 400 });
+    }
+
     return NextResponse.json(result);
   } catch (error: any) {
     console.error('Error processing Excel:', error);

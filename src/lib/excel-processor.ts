@@ -224,6 +224,10 @@ export async function processExcelBuffer(
     }
   }
 
+  if (validRowsCount === 0) {
+    throw new Error('El archivo Excel no contiene ninguna fila válida con precios y nombres de productos.');
+  }
+
   // 3. Batch upsert in chunks of 100
   const upsertList = Array.from(updatesMap.values());
   const chunkSize = 100;

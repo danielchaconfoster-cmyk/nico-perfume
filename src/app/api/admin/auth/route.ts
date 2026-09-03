@@ -4,8 +4,39 @@ const VALID_USERS = ['admin', 'nico', 'nico@nicoperfume.cl', process.env.ADMIN_U
 const DEFAULT_PASSWORD = process.env.ADMIN_PASSWORD || 'NicoPerfume2026!';
 const DEFAULT_PIN = process.env.ADMIN_SECRET_PIN || 'nico2026';
 
+// In-memory sliding window rate limiter
+interface RateLimitRecord {
+  attempts: number;
+  blockedUntil: number;
+}
+const rateLimitMap = new Map<string, RateLimitRecord>();
+const MAX_ATTEMPTS = 5;
+const BLOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
+function getClientIp(req: NextRequest): string {
+  const forwarded = req.headers.get('x-forwarded-for');
+  if (forwarded) return forwarded.split(',')[0].trim();
+  return req.headers.get('x-real-ip') || '127.0.0.1';
+}
+
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const now = Date.now();
+    const record = rateLimitMap.get(ip) || { attempts: 0, blockedUntil: 0 };
+
+    // Check if IP is currently blocked
+    if (record.blockedUntil > now) {
+      const remainingMinutes = Math.ceil((record.blockedUntil - now) / (60 * 1000));
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: `Demasiados intentos fallidos. Por seguridad, tu acceso ha sido bloqueado temporalmente por ${remainingMinutes} minutos.` 
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { username, password, pin } = body;
 
@@ -25,11 +56,31 @@ export async function POST(req: NextRequest) {
     }
 
     if (!isAuthorized) {
+      record.attempts += 1;
+      if (record.attempts >= MAX_ATTEMPTS) {
+        record.blockedUntil = now + BLOCK_DURATION_MS;
+        rateLimitMap.set(ip, record);
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: 'Has superado el límite de 5 intentos. Acceso bloqueado por 15 minutos.' 
+          },
+          { status: 429 }
+        );
+      }
+      rateLimitMap.set(ip, record);
+      const remaining = MAX_ATTEMPTS - record.attempts;
       return NextResponse.json(
-        { success: false, message: 'Usuario o contraseña incorrectos' },
+        { 
+          success: false, 
+          message: `Credenciales incorrectas. Te quedan ${remaining} intento${remaining === 1 ? '' : 's'}.` 
+        },
         { status: 401 }
       );
     }
+
+    // Success: reset attempts for this IP
+    rateLimitMap.delete(ip);
 
     const response = NextResponse.json({
       success: true,

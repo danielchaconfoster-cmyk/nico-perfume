@@ -32,6 +32,7 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [copied, setCopied] = useState(false);
+  const [honeypot, setHoneypot] = useState('');
 
   // Apply Coupon
   const handleApplyCoupon = (e: React.FormEvent) => {
@@ -55,8 +56,17 @@ export default function CheckoutPage() {
   const shippingCost = isFreeShipping ? 0 : 3990;
   const finalTotal = Math.max(0, cartTotal - discountAmount + shippingCost);
 
-  const handleSubmitOrder = (e: React.FormEvent) => {
+  const handleSubmitOrder = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const hp = (formData.get('website_url') as string) || honeypot;
+
+    // Silent discard for automated bot submissions
+    if (hp && hp.trim() !== '') {
+      console.warn('Bot submission blocked via honeypot');
+      return;
+    }
+
     const generatedId = `NICO-${Math.floor(100000 + Math.random() * 900000)}`;
     const generatedTracking = `CL-STK-${Math.floor(10000000 + Math.random() * 90000000)}`;
 
@@ -221,6 +231,20 @@ export default function CheckoutPage() {
 
             <form onSubmit={handleSubmitOrder} className="space-y-6">
               
+              {/* Invisible Honeypot Anti-Bot Field */}
+              <div className="hidden" aria-hidden="true" tabIndex={-1}>
+                <label htmlFor="website_url">No completar este campo</label>
+                <input
+                  type="text"
+                  id="website_url"
+                  name="website_url"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
               {/* 1. Contact Info */}
               <div className="p-6 rounded-2xl bg-[#0a0a0f] border border-zinc-850 space-y-4">
                 <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-200 flex items-center gap-2">
