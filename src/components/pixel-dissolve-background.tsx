@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import Image from 'next/image';
 
 export interface SceneItem {
   id: string;
   type: 'perfume' | 'model';
-  pairIndex: number; // 0 to 4 (5 pairs)
+  pairIndex: number;
   gender: 'Mujer' | 'Hombre' | 'Unisex';
   title: string;
   subtitle: string;
@@ -21,7 +22,7 @@ export const CINEMATIC_SCENES: SceneItem[] = [
     gender: 'Mujer',
     title: 'Lattafa Yara Rosa (Extrait)',
     subtitle: 'Extracto dulce de vainilla, orquídea y malvavisco',
-    imageUrl: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=1600&auto=format&fit=crop&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=1400&auto=format&fit=crop&q=80',
   },
   {
     id: 'p1-model',
@@ -30,7 +31,7 @@ export const CINEMATIC_SCENES: SceneItem[] = [
     gender: 'Mujer',
     title: 'Aplicación Femenina Sublime',
     subtitle: 'Rocío en cuello y muñecas para fijación de 12 horas',
-    imageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1600&auto=format&fit=crop&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1400&auto=format&fit=crop&q=80',
   },
 
   // Pair 2: Hombre - Seducción Nocturna
@@ -41,7 +42,7 @@ export const CINEMATIC_SCENES: SceneItem[] = [
     gender: 'Hombre',
     title: 'Afnan 9 PM Black EDP',
     subtitle: 'Manzana silvestre, canela especiada y vainilla negra',
-    imageUrl: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=1600&auto=format&fit=crop&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=1400&auto=format&fit=crop&q=80',
   },
   {
     id: 'p2-model',
@@ -50,7 +51,7 @@ export const CINEMATIC_SCENES: SceneItem[] = [
     gender: 'Hombre',
     title: 'El Ritual de Seducción Masculina',
     subtitle: 'Proyección imponente para citas y eventos nocturnos',
-    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1600&auto=format&fit=crop&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1400&auto=format&fit=crop&q=80',
   },
 
   // Pair 3: Unisex - Nicho Real y Oro
@@ -61,7 +62,7 @@ export const CINEMATIC_SCENES: SceneItem[] = [
     gender: 'Unisex',
     title: 'Al Haramain Amber Oud Gold',
     subtitle: 'Piña ahumada, bergamota pura y ámbar cristalino',
-    imageUrl: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=1600&auto=format&fit=crop&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=1400&auto=format&fit=crop&q=80',
   },
   {
     id: 'p3-model',
@@ -70,7 +71,7 @@ export const CINEMATIC_SCENES: SceneItem[] = [
     gender: 'Unisex',
     title: 'Aura Unisex de Alta Costura',
     subtitle: 'Elegancia compartida con estela monumental',
-    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1600&auto=format&fit=crop&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1400&auto=format&fit=crop&q=80',
   },
 
   // Pair 4: Mujer - Glamour & Oriental
@@ -81,7 +82,7 @@ export const CINEMATIC_SCENES: SceneItem[] = [
     gender: 'Mujer',
     title: 'Lattafa Khamrah & Good Girl Vibe',
     subtitle: 'Canela de Ceilán, praliné tostado y licor de dátiles',
-    imageUrl: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=1600&auto=format&fit=crop&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=1400&auto=format&fit=crop&q=80',
   },
   {
     id: 'p4-model',
@@ -90,7 +91,7 @@ export const CINEMATIC_SCENES: SceneItem[] = [
     gender: 'Mujer',
     title: 'Elegancia Nocturna Inolvidable',
     subtitle: 'Sensualidad cálida que viste cada instante',
-    imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1600&auto=format&fit=crop&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1400&auto=format&fit=crop&q=80',
   },
 
   // Pair 5: Hombre - Poder & Cuero Real
@@ -101,7 +102,7 @@ export const CINEMATIC_SCENES: SceneItem[] = [
     gender: 'Hombre',
     title: 'Bharara King Parfum',
     subtitle: 'Naranja sanguina, enebro fresco y maderas nobles',
-    imageUrl: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=1600&auto=format&fit=crop&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=1400&auto=format&fit=crop&q=80',
   },
   {
     id: 'p5-model',
@@ -110,7 +111,7 @@ export const CINEMATIC_SCENES: SceneItem[] = [
     gender: 'Hombre',
     title: 'Presencia Imponente & Sofisticación',
     subtitle: 'La firma del hombre seguro y carismático',
-    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=1600&auto=format&fit=crop&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=1400&auto=format&fit=crop&q=80',
   },
 ];
 
@@ -121,7 +122,21 @@ interface PixelDissolveBackgroundProps {
 
 export function PixelDissolveBackground({ onSceneChange, className = '' }: PixelDissolveBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [nextIdx, setNextIdx] = useState(1);
+  const [pixelBlockSize, setPixelBlockSize] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [canvasReady, setCanvasReady] = useState(false);
+
+  // High performance single offscreen canvas
+  const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    // Create single reusable offscreen canvas to avoid garbage collection pressure
+    if (!offscreenCanvasRef.current && typeof document !== 'undefined') {
+      offscreenCanvasRef.current = document.createElement('canvas');
+    }
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -132,58 +147,46 @@ export function PixelDissolveBackground({ onSceneChange, className = '' }: Pixel
     let isCancelled = false;
     let animationFrameId: number;
 
-    // Preload all images
+    // Preload image elements
     const loadedImages: HTMLImageElement[] = [];
-    let loadedCount = 0;
-
     CINEMATIC_SCENES.forEach((scene, i) => {
-      const img = new Image();
+      const img = new (window.Image || Image)();
       img.crossOrigin = 'anonymous';
       img.src = scene.imageUrl;
-      img.onload = () => {
-        loadedCount++;
-      };
       loadedImages[i] = img;
     });
 
-    // Dimensions
     const resizeCanvas = () => {
       if (!canvas) return;
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      canvas.width = Math.floor(rect.width * dpr);
-      canvas.height = Math.floor(rect.height * dpr);
+      try {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+        canvas.width = Math.max(320, Math.floor(rect.width * dpr));
+        canvas.height = Math.max(320, Math.floor(rect.height * dpr));
+      } catch (err) {
+        console.warn('Canvas resize error:', err);
+      }
     };
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+    setCanvasReady(true);
 
-    // Animation Timing
-    const HOLD_TIME_MS = 3800; // Time holding crisp image
-    const TRANSITION_TIME_MS = 1400; // Duration of pixel dissolve transition
+    const HOLD_TIME_MS = 3800;
+    const TRANSITION_TIME_MS = 1400;
     const TOTAL_STEP_MS = HOLD_TIME_MS + TRANSITION_TIME_MS;
 
     let startTime = performance.now();
-    let currentIdx = 0;
-    let nextIdx = 1;
+    let localCurrentIdx = 0;
+    let localNextIdx = 1;
 
-    // Helper to draw image scaled to cover canvas
-    const drawCoverImage = (
-      img: HTMLImageElement,
-      targetCanvas: HTMLCanvasElement | CanvasRenderingContext2D,
-      pixelFactor: number,
-      scaleZoom: number = 1.0
-    ) => {
-      if (!img.complete || img.naturalWidth === 0) return;
+    const drawCoverImage = (img: HTMLImageElement, pixelFactor: number, scaleZoom: number = 1.0) => {
+      if (!img || !img.complete || img.naturalWidth === 0) return;
 
       const cw = canvas.width;
       const ch = canvas.height;
+      if (cw === 0 || ch === 0) return;
 
-      // Downsampled buffer size
-      const pw = Math.max(8, Math.floor(cw * pixelFactor));
-      const ph = Math.max(8, Math.floor(ch * pixelFactor));
-
-      // Calculate object-cover aspect ratio
       const imgAspect = img.naturalWidth / img.naturalHeight;
       const canvasAspect = cw / ch;
 
@@ -196,80 +199,98 @@ export function PixelDissolveBackground({ onSceneChange, className = '' }: Pixel
         sy = (img.naturalHeight - sh) / 2;
       }
 
-      // Create or reuse temporary low-res offscreen canvas
-      const offscreen = document.createElement('canvas');
-      offscreen.width = pw;
-      offscreen.height = ph;
-      const offCtx = offscreen.getContext('2d');
-      if (!offCtx) return;
+      if (pixelFactor >= 0.95) {
+        // High-res smooth render
+        ctx.imageSmoothingEnabled = true;
+        ctx.save();
+        if (scaleZoom !== 1.0) {
+          ctx.translate(cw / 2, ch / 2);
+          ctx.scale(scaleZoom, scaleZoom);
+          ctx.translate(-cw / 2, -ch / 2);
+        }
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+        ctx.restore();
+      } else {
+        // Pixelated render via reusable offscreen canvas
+        const offscreen = offscreenCanvasRef.current;
+        if (!offscreen) return;
 
-      // Draw onto tiny canvas
-      offCtx.drawImage(img, sx, sy, sw, sh, 0, 0, pw, ph);
+        const pw = Math.max(6, Math.floor(cw * pixelFactor));
+        const ph = Math.max(6, Math.floor(ch * pixelFactor));
+        offscreen.width = pw;
+        offscreen.height = ph;
 
-      // Draw blown up with pixelation
-      ctx.imageSmoothingEnabled = false;
-      ctx.save();
-      
-      // Subtle zoom around center
-      if (scaleZoom !== 1.0) {
-        ctx.translate(cw / 2, ch / 2);
-        ctx.scale(scaleZoom, scaleZoom);
-        ctx.translate(-cw / 2, -ch / 2);
+        const offCtx = offscreen.getContext('2d');
+        if (!offCtx) return;
+
+        offCtx.drawImage(img, sx, sy, sw, sh, 0, 0, pw, ph);
+
+        ctx.imageSmoothingEnabled = false;
+        ctx.save();
+        if (scaleZoom !== 1.0) {
+          ctx.translate(cw / 2, ch / 2);
+          ctx.scale(scaleZoom, scaleZoom);
+          ctx.translate(-cw / 2, -ch / 2);
+        }
+        ctx.drawImage(offscreen, 0, 0, pw, ph, 0, 0, cw, ch);
+        ctx.restore();
       }
-
-      ctx.drawImage(offscreen, 0, 0, pw, ph, 0, 0, cw, ch);
-      ctx.restore();
     };
 
     const render = (time: number) => {
       if (isCancelled) return;
 
-      const elapsed = time - startTime;
-      const progressInCycle = elapsed % TOTAL_STEP_MS;
-      const activeIdx = Math.floor(elapsed / TOTAL_STEP_MS) % CINEMATIC_SCENES.length;
-      const targetNextIdx = (activeIdx + 1) % CINEMATIC_SCENES.length;
+      try {
+        const elapsed = time - startTime;
+        const progressInCycle = elapsed % TOTAL_STEP_MS;
+        const activeIdx = Math.floor(elapsed / TOTAL_STEP_MS) % CINEMATIC_SCENES.length;
+        const targetNextIdx = (activeIdx + 1) % CINEMATIC_SCENES.length;
 
-      if (activeIdx !== currentIdx) {
-        currentIdx = activeIdx;
-        nextIdx = targetNextIdx;
-        setCurrentSceneIndex(currentIdx);
-        onSceneChange?.(CINEMATIC_SCENES[currentIdx]);
-      }
-
-      const currentImg = loadedImages[currentIdx];
-      const nextImg = loadedImages[nextIdx];
-
-      ctx.fillStyle = '#08080c';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      if (progressInCycle < HOLD_TIME_MS) {
-        // Steady state: crisp image with subtle breathing zoom (1.0 -> 1.03)
-        const holdProgress = progressInCycle / HOLD_TIME_MS;
-        const zoom = 1.0 + holdProgress * 0.035;
-        if (currentImg && currentImg.complete) {
-          drawCoverImage(currentImg, ctx, 1.0, zoom);
+        if (activeIdx !== localCurrentIdx) {
+          localCurrentIdx = activeIdx;
+          localNextIdx = targetNextIdx;
+          setCurrentIdx(localCurrentIdx);
+          setNextIdx(localNextIdx);
+          onSceneChange?.(CINEMATIC_SCENES[localCurrentIdx]);
         }
-      } else {
-        // Pixel Transition State: Dissolving between currentImg and nextImg
-        const transProgress = (progressInCycle - HOLD_TIME_MS) / TRANSITION_TIME_MS; // 0 to 1
 
-        if (transProgress < 0.5) {
-          // Phase 1: Pixelate out current image (factor 1.0 -> 0.02)
-          const p = transProgress / 0.5; // 0 to 1
-          const factor = Math.max(0.015, Math.pow(1 - p, 2.2));
-          const zoom = 1.035 + p * 0.02;
+        const currentImg = loadedImages[localCurrentIdx];
+        const nextImg = loadedImages[localNextIdx];
+
+        ctx.fillStyle = '#08080c';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (progressInCycle < HOLD_TIME_MS) {
+          // Steady crisp stage
+          const holdProgress = progressInCycle / HOLD_TIME_MS;
+          const zoom = 1.0 + holdProgress * 0.035;
           if (currentImg && currentImg.complete) {
-            drawCoverImage(currentImg, ctx, factor, zoom);
+            drawCoverImage(currentImg, 1.0, zoom);
           }
         } else {
-          // Phase 2: Unpixelate next image (factor 0.02 -> 1.0)
-          const p = (transProgress - 0.5) / 0.5; // 0 to 1
-          const factor = Math.max(0.015, Math.pow(p, 2.2));
-          const zoom = 1.0 + (1 - p) * 0.02;
-          if (nextImg && nextImg.complete) {
-            drawCoverImage(nextImg, ctx, factor, zoom);
+          // Pixel Dissolve Transition stage
+          const transProgress = (progressInCycle - HOLD_TIME_MS) / TRANSITION_TIME_MS;
+
+          if (transProgress < 0.5) {
+            // Phase 1: Pixelate out
+            const p = transProgress / 0.5;
+            const factor = Math.max(0.012, Math.pow(1 - p, 2.2));
+            const zoom = 1.035 + p * 0.02;
+            if (currentImg && currentImg.complete) {
+              drawCoverImage(currentImg, factor, zoom);
+            }
+          } else {
+            // Phase 2: Unpixelate in
+            const p = (transProgress - 0.5) / 0.5;
+            const factor = Math.max(0.012, Math.pow(p, 2.2));
+            const zoom = 1.0 + (1 - p) * 0.02;
+            if (nextImg && nextImg.complete) {
+              drawCoverImage(nextImg, factor, zoom);
+            }
           }
         }
+      } catch (err) {
+        // Gracefully catch any drawing/security exception
       }
 
       animationFrameId = requestAnimationFrame(render);
@@ -295,9 +316,8 @@ export function PixelDissolveBackground({ onSceneChange, className = '' }: Pixel
       {/* 2. Luxury Dark Film Vignette & Gradients */}
       <div className="absolute inset-0 bg-gradient-to-t from-[#07070b] via-[#07070b]/65 to-[#07070b]/80" />
       <div className="absolute inset-0 bg-gradient-to-r from-[#07070b] via-transparent to-[#07070b]/90" />
-      <div className="absolute inset-0 bg-radial-vignette opacity-50" />
 
-      {/* 3. Subtle Luxury Gold Particle Glow */}
+      {/* 3. Subtle Luxury Gold Glow */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gold-600/10 blur-[140px] rounded-full pointer-events-none" />
       <div className="absolute bottom-10 -right-20 w-96 h-96 bg-amber-500/10 blur-[150px] rounded-full pointer-events-none" />
     </div>

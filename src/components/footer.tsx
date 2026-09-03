@@ -129,7 +129,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-zinc-500">
-          <p>© {new Date().getFullYear()} NICO PERFUME. Todos los derechos reservados.</p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} NICO PERFUME. Todos los derechos reservados.</p>
           <div className="flex items-center gap-6">
             <span>Envíos seguros a todo Chile</span>
             <span>•</span>
