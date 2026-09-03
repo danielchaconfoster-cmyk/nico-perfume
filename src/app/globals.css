@@ -120,3 +120,12 @@ body {
 .animate-marquee-reverse:hover {
   animation-play-state: paused;
 }
+
+/* Hide scrollbar for clean horizontal chip navigation */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

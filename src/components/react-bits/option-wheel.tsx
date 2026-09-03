@@ -1,21 +1,22 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 
 export interface OptionWheelProps {
   items: string[];
   defaultSelected?: number;
   textColor?: string;
   activeColor?: string;
-  side?: 'left' | 'right';
-  fontSize?: number; // In rem units (e.g. 2.5 or 3)
-  spacing?: number; // Distance multiplier between items
-  curve?: number; // 3D depth curvature intensity
-  tilt?: number; // 3D tilt angle in degrees
-  blur?: number; // Maximum blur in px for edge items
-  fade?: number; // Opacity decay factor (0 to 1)
-  smoothing?: number; // Inertia smoothing factor (0.1 to 0.3)
-  inset?: number; // Margin from the chosen side in px
+  side?: 'left' | 'right' | 'center';
+  fontSize?: number;
+  spacing?: number;
+  curve?: number;
+  tilt?: number;
+  blur?: number;
+  fade?: number;
+  smoothing?: number;
+  inset?: number;
   loop?: boolean;
   draggable?: boolean;
   soundUrl?: string;
@@ -25,23 +26,21 @@ export interface OptionWheelProps {
   className?: string;
 }
 
-// Synthetic haptic click audio synthesizer via Web Audio API
-function playSyntheticTick(volume: number = 0.25) {
+// Gentle synthetic tick using Web Audio API
+function playSyntheticTick(volume: number = 0.2) {
   try {
     if (typeof window === 'undefined') return;
-    const AudioContextClass =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextClass) return;
-    const ctx = new AudioContextClass();
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(750, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.025);
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.025);
 
-    gain.gain.setValueAtTime(volume * 0.35, ctx.currentTime);
+    gain.gain.setValueAtTime(volume * 0.15, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.025);
 
     osc.connect(gain);
@@ -50,28 +49,22 @@ function playSyntheticTick(volume: number = 0.25) {
     osc.start();
     osc.stop(ctx.currentTime + 0.03);
   } catch {
-    // Graceful fallback
+    // Silent fallback
   }
 }
 
 export function OptionWheel({
   items = [],
   defaultSelected = 0,
-  textColor = '#8e8e93',
+  textColor = '#a1a1aa',
   activeColor = '#ffffff',
   side = 'right',
-  fontSize = 2.6,
-  spacing = 1.35,
-  curve = 1.1,
-  tilt = 6.5,
-  blur = 2.5,
-  fade = 0.3,
-  smoothing = 0.16, // Continuous RAF spring dampening
-  inset = 0,
+  fontSize = 2.0,
+  spacing = 1.25,
   loop = true,
   draggable = true,
   soundUrl,
-  soundVolume = 0.25,
+  soundVolume = 0.2,
   onChange,
   onSelect,
   className = '',
@@ -88,10 +81,9 @@ export function OptionWheel({
   const isDraggingRef = useRef<boolean>(false);
   const dragStartYRef = useRef<number>(0);
   const dragStartTargetRef = useRef<number>(initialIdx);
-  const lastSnapTimeRef = useRef<number>(0);
+  const hasMovedRef = useRef<boolean>(false);
   const lastRoundedIdxRef = useRef<number>(initialIdx);
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animFrameRef = useRef<number>(0);
 
@@ -123,7 +115,7 @@ export function OptionWheel({
     }
   }, [defaultSelected, count]);
 
-  // Continuous physics loop for ultra-smooth fluid momentum
+  // Buttery-smooth spring loop
   useEffect(() => {
     let isRunning = true;
 
@@ -132,22 +124,13 @@ export function OptionWheel({
 
       const diff = targetPosRef.current - posRef.current;
 
-      // Spring dampening interpolation
+      // Silky spring easing
       if (Math.abs(diff) > 0.001) {
-        posRef.current += diff * smoothing;
+        posRef.current += diff * 0.22;
         setDisplayPos(posRef.current);
       } else if (posRef.current !== targetPosRef.current) {
         posRef.current = targetPosRef.current;
         setDisplayPos(posRef.current);
-      }
-
-      // Auto-snap to nearest integer when user stops scrolling/dragging
-      const now = Date.now();
-      if (!isDraggingRef.current && now - lastSnapTimeRef.current > 120) {
-        const rounded = Math.round(targetPosRef.current);
-        if (Math.abs(targetPosRef.current - rounded) > 0.001) {
-          targetPosRef.current += (rounded - targetPosRef.current) * 0.12;
-        }
       }
 
       // Calculate current normalized active integer index
@@ -174,62 +157,23 @@ export function OptionWheel({
       isRunning = false;
       cancelAnimationFrame(animFrameRef.current);
     };
-  }, [count, loop, items, smoothing, triggerTick, onChange]);
+  }, [count, loop, items, triggerTick, onChange]);
 
-  // Instant response Wheel Handler (no debounce blocking!)
-  const handleWheel = useCallback(
-    (e: React.WheelEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+  // Navigate to previous item
+  const handlePrev = useCallback(() => {
+    targetPosRef.current = Math.round(targetPosRef.current) - 1;
+    if (!loop) targetPosRef.current = Math.max(0, targetPosRef.current);
+  }, [loop]);
 
-      // Fluid sensitivity for trackpad & mouse wheel
-      const delta = (e.deltaY || e.deltaX) * 0.0028;
-      targetPosRef.current += delta;
+  // Navigate to next item
+  const handleNext = useCallback(() => {
+    targetPosRef.current = Math.round(targetPosRef.current) + 1;
+    if (!loop) targetPosRef.current = Math.min(count - 1, targetPosRef.current);
+  }, [loop, count]);
 
-      if (!loop) {
-        targetPosRef.current = Math.max(-0.4, Math.min(count - 0.6, targetPosRef.current));
-      }
-
-      lastSnapTimeRef.current = Date.now();
-    },
-    [loop, count]
-  );
-
-  // Pointer Drag Handlers
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (!draggable) return;
-    isDraggingRef.current = true;
-    dragStartYRef.current = e.clientY;
-    dragStartTargetRef.current = targetPosRef.current;
-    lastSnapTimeRef.current = Date.now();
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDraggingRef.current) return;
-    const deltaY = e.clientY - dragStartYRef.current;
-    const itemHeightPx = fontSize * 16 * spacing * 0.9;
-    const deltaStep = -deltaY / itemHeightPx;
-
-    targetPosRef.current = dragStartTargetRef.current + deltaStep;
-    if (!loop) {
-      targetPosRef.current = Math.max(-0.4, Math.min(count - 0.6, targetPosRef.current));
-    }
-    lastSnapTimeRef.current = Date.now();
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!isDraggingRef.current) return;
-    isDraggingRef.current = false;
-    lastSnapTimeRef.current = Date.now();
-    (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
-  };
-
-  // Direct Click on any item (instant snap and navigate)
+  // Direct Click on any item (instant selection & snap)
   const handleItemClick = (idx: number, text: string) => {
-    // Snap target to clicked index
     if (loop) {
-      // Find shortest angular distance in loop
       const currentNorm = ((posRef.current % count) + count) % count;
       let diff = idx - currentNorm;
       if (diff > count / 2) diff -= count;
@@ -239,38 +183,82 @@ export function OptionWheel({
       targetPosRef.current = idx;
     }
 
-    lastSnapTimeRef.current = Date.now();
     onSelect?.(idx, text);
   };
 
-  const VISIBLE_COUNT = 3;
-  const isRight = side === 'right';
+  // Touch & Pointer Drag Handlers (DO NOT capture pointer to allow clean clicks!)
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (!draggable) return;
+    isDraggingRef.current = true;
+    hasMovedRef.current = false;
+    dragStartYRef.current = e.clientY;
+    dragStartTargetRef.current = targetPosRef.current;
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDraggingRef.current) return;
+    const deltaY = e.clientY - dragStartYRef.current;
+    if (Math.abs(deltaY) > 6) {
+      hasMovedRef.current = true;
+    }
+    const itemHeightPx = 44;
+    const deltaStep = -deltaY / itemHeightPx;
+
+    targetPosRef.current = dragStartTargetRef.current + deltaStep;
+    if (!loop) {
+      targetPosRef.current = Math.max(0, Math.min(count - 1, targetPosRef.current));
+    }
+  };
+
+  const handlePointerUp = () => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    targetPosRef.current = Math.round(targetPosRef.current);
+  };
+
+  const VISIBLE_COUNT = 2; // -2, -1, 0, 1, 2 for clean mobile view
 
   return (
     <div
-      ref={containerRef}
-      onWheel={handleWheel}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
-      className={`relative select-none flex flex-col justify-center overflow-visible touch-none cursor-grab active:cursor-grabbing ${className}`}
+      className={"relative select-none flex flex-col justify-center overflow-visible touch-pan-y " + className}
       style={{
-        perspective: '1200px',
-        perspectiveOrigin: isRight ? '85% 50%' : '15% 50%',
-        paddingRight: isRight ? `${inset}px` : '0',
-        paddingLeft: !isRight ? `${inset}px` : '0',
-        alignItems: isRight ? 'flex-end' : 'flex-start',
-        minHeight: `${(VISIBLE_COUNT * 2 + 1) * fontSize * 1.4}rem`,
+        minHeight: '180px',
       }}
     >
-      <div className="relative flex flex-col items-inherit w-full">
-        {Array.from({ length: VISIBLE_COUNT * 2 + 1 }).map((_, slotIdx) => {
-          const slotOffset = slotIdx - VISIBLE_COUNT; // -3, -2, -1, 0, 1, 2, 3
-          const baseCenterInt = Math.floor(displayPos);
-          const fractionalOffset = displayPos - baseCenterInt; // [0, 1)
+      {/* 1. Quick Up/Down Controls for 1-Tap Accessibility */}
+      <div className="flex items-center justify-between sm:justify-end gap-2 mb-1 px-1 z-30">
+        <button
+          type="button"
+          onClick={handlePrev}
+          aria-label="Opción anterior"
+          className="p-1.5 rounded-full bg-black/70 hover:bg-gold-500/20 text-zinc-400 hover:text-gold-300 border border-white/10 hover:border-gold-500/40 transition active:scale-95 shadow-md flex items-center justify-center cursor-pointer"
+        >
+          <ChevronUp className="w-4 h-4" />
+        </button>
+        <span className="text-[10px] font-mono text-zinc-400 sm:hidden">
+          {activeIdx + 1} / {count}
+        </span>
+        <button
+          type="button"
+          onClick={handleNext}
+          aria-label="Siguiente opción"
+          className="p-1.5 rounded-full bg-black/70 hover:bg-gold-500/20 text-zinc-400 hover:text-gold-300 border border-white/10 hover:border-gold-500/40 transition active:scale-95 shadow-md flex items-center justify-center cursor-pointer"
+        >
+          <ChevronDown className="w-4 h-4" />
+        </button>
+      </div>
 
-          // Continuous relative distance from exact center
+      {/* 2. Wheel Stack Container */}
+      <div className="relative h-[150px] sm:h-[170px] w-full flex items-center justify-center sm:justify-end overflow-visible">
+        {Array.from({ length: VISIBLE_COUNT * 2 + 1 }).map((_, slotIdx) => {
+          const slotOffset = slotIdx - VISIBLE_COUNT;
+          const baseCenterInt = Math.floor(displayPos);
+          const fractionalOffset = displayPos - baseCenterInt;
+
           const rawItemIndex = baseCenterInt + slotOffset;
           const continuousDist = slotOffset - fractionalOffset;
 
@@ -285,61 +273,61 @@ export function OptionWheel({
 
           const itemText = items[targetIndex] || '';
           const absDist = Math.abs(continuousDist);
-          const isSelected = absDist < 0.5;
+          const isSelected = absDist < 0.45;
 
-          // Continuous 3D Cylindrical Transformation Math
-          const translateY = continuousDist * (fontSize * 16 * spacing * 0.72);
-          const rotateX = -continuousDist * (14 * curve);
-          const rotateY = isRight ? -(continuousDist * tilt * 0.6) : continuousDist * tilt * 0.6;
-          const rotateZ = isRight ? -(continuousDist * 1.8) : continuousDist * 1.8;
-          const translateZ = -absDist * (32 * curve);
-          const scale = Math.max(0.68, 1 - absDist * 0.11);
-          const itemOpacity = Math.max(0.12, 1 - absDist * fade);
-          const itemBlur = absDist * blur * 0.55;
+          const translateY = continuousDist * 38;
+          const scale = Math.max(0.74, 1 - absDist * 0.15);
+          const itemOpacity = Math.max(0.2, 1 - absDist * 0.42);
+
+          const isLongName = itemText.length > 13;
+          const isVeryLongName = itemText.length > 16;
 
           return (
             <div
-              key={`${targetIndex}-${slotIdx}`}
+              key={targetIndex + '-' + slotIdx}
               onClick={(e) => {
                 e.stopPropagation();
-                handleItemClick(targetIndex, itemText);
+                if (!hasMovedRef.current) {
+                  handleItemClick(targetIndex, itemText);
+                }
               }}
-              className="absolute left-0 right-0 flex items-center cursor-pointer group transition-colors duration-150"
+              role="button"
+              tabIndex={0}
+              aria-label={itemText}
+              className="absolute left-0 right-0 flex items-center justify-center sm:justify-end cursor-pointer group transition-all duration-200 py-1"
               style={{
-                justifyContent: isRight ? 'flex-end' : 'flex-start',
                 top: '50%',
-                transformOrigin: isRight ? 'right center' : 'left center',
-                transform: `translateY(${translateY}px) translateY(-50%) translateZ(${translateZ}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale})`,
+                transform: "translateY(" + translateY + "px) translateY(-50%) scale(" + scale + ")",
                 opacity: itemOpacity,
-                filter: itemBlur > 0.15 ? `blur(${itemBlur}px)` : 'none',
-                zIndex: Math.round(30 - absDist * 5),
+                zIndex: Math.round(20 - absDist * 5),
               }}
             >
-              <span
-                className={`font-serif tracking-[0.2em] uppercase whitespace-nowrap transition-all duration-200 ${
+              <div
+                className={"inline-flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all duration-200 border " + (
                   isSelected
-                    ? 'font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#fff5d6] via-[#d4af37] to-[#fcebc2]'
-                    : 'font-light hover:text-gold-300/90'
-                }`}
-                style={{
-                  fontSize: `${fontSize}rem`,
-                  color: isSelected ? activeColor : textColor,
-                  textShadow: isSelected
-                    ? '0 0 35px rgba(212, 175, 55, 0.45), 0 2px 10px rgba(0, 0, 0, 0.85)'
-                    : '0 2px 6px rgba(0,0,0,0.5)',
-                }}
+                    ? 'bg-black/80 border-gold-400/60 shadow-lg shadow-gold-500/15 ring-1 ring-gold-400/30'
+                    : 'bg-transparent border-transparent hover:border-white/10'
+                )}
               >
-                {itemText}
-              </span>
-
-              {/* Glowing active indicator dot */}
-              {isSelected && (
+                {isSelected && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold-400 animate-pulse shrink-0" />
+                )}
                 <span
-                  className={`w-2 h-2 rounded-full bg-gold-400 shadow-[0_0_12px_#d4af37] animate-pulse ${
-                    isRight ? 'ml-3' : 'mr-3 order-first'
-                  }`}
-                />
-              )}
+                  className={"font-serif uppercase transition-all duration-200 truncate max-w-[270px] sm:max-w-[340px] " + (
+                    isVeryLongName
+                      ? 'text-xs sm:text-sm md:text-base tracking-wider'
+                      : isLongName
+                      ? 'text-sm sm:text-base md:text-lg tracking-wider'
+                      : 'text-base sm:text-lg md:text-xl tracking-[0.15em]'
+                  ) + " " + (
+                    isSelected
+                      ? 'text-zinc-100 font-medium drop-shadow-[0_2px_8px_rgba(197,168,128,0.4)]'
+                      : 'text-zinc-400 group-hover:text-zinc-200 font-light'
+                  )}
+                >
+                  {itemText}
+                </span>
+              </div>
             </div>
           );
         })}
