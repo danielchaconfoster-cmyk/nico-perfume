@@ -16,7 +16,11 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Nico Perfume | Alta Perfumería & Recomendador Inteligente',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://nicoperfume.cl'),
+  title: {
+    default: 'Nico Perfume | Alta Perfumería & Recomendador Inteligente',
+    template: '%s | Nico Perfume'
+  },
   description:
     'Descubre tu fragancia firma en Nico Perfume. Más de 1.300 perfumes de diseñador, nicho y árabes con asesoría personalizada y motor de recomendación de fragancias gemelas.',
   keywords: [
@@ -30,6 +34,19 @@ export const metadata: Metadata = {
     'lattafa',
     'bharara'
   ],
+  openGraph: {
+    title: 'Nico Perfume | Alta Perfumería & Recomendador Inteligente',
+    description: 'Más de 1.300 perfumes 100% originales sellados con motor de fragancias gemelas y test sommelier.',
+    url: 'https://nicoperfume.cl',
+    siteName: 'Nico Perfume',
+    locale: 'es_CL',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nico Perfume | Fragancias de Autor',
+    description: 'Catálogo de más de 1.300 perfumes originales con envíos a todo Chile por Starken y Blue Express.',
+  },
 };
 
 export default function RootLayout({
