@@ -8,14 +8,12 @@ import { CompareModal } from './compare-modal';
 import { WishlistModal } from './wishlist-modal';
 import { ToastNotification } from './toast-notification';
 import { Navbar } from './navbar';
-import { Perfume } from '@/types/perfume';
 
 interface StoreModalsProps {
-  perfumes: Perfume[];
   children: React.ReactNode;
 }
 
-export function StoreModalsWrapper({ perfumes, children }: StoreModalsProps) {
+export function StoreModalsWrapper({ children }: StoreModalsProps) {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
 
   return (
@@ -29,7 +27,6 @@ export function StoreModalsWrapper({ perfumes, children }: StoreModalsProps) {
       <WishlistModal
         isOpen={isWishlistOpen}
         onClose={() => setIsWishlistOpen(false)}
-        perfumes={perfumes}
       />
       <ToastNotification />
     </>

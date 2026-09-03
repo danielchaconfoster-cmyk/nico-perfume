@@ -2,23 +2,22 @@
 
 import React from 'react';
 import { useCart } from '@/lib/cart-context';
-import { Perfume } from '@/types/perfume';
 import { formatCLP } from '@/lib/utils';
+import { allPerfumes } from '@/lib/perfumes';
 import { X, Heart, ShoppingBag, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 
 interface WishlistModalProps {
   isOpen: boolean;
   onClose: () => void;
-  perfumes: Perfume[];
 }
 
-export function WishlistModal({ isOpen, onClose, perfumes }: WishlistModalProps) {
+export function WishlistModal({ isOpen, onClose }: WishlistModalProps) {
   const { wishlist, toggleWishlist, addToCart, openQuickView } = useCart();
 
   if (!isOpen) return null;
 
-  const favoritePerfumes = perfumes.filter(p => wishlist.includes(p.id));
+  const favoritePerfumes = allPerfumes.filter(p => wishlist.includes(p.id));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
