@@ -15,22 +15,15 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
     const retailMarkupStr = formData.get('retailMarkup') as string | null;
-    const normalMarkupStr = formData.get('normalMarkup') as string | null;
-
     if (!file) {
       return NextResponse.json({ error: 'No se envió ningún archivo Excel.' }, { status: 400 });
     }
-
-    const retailMarkupPct = retailMarkupStr ? parseFloat(retailMarkupStr) : 48;
-    const normalMarkupPct = normalMarkupStr ? parseFloat(normalMarkupStr) : 30;
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
     const result = await processExcelBuffer(buffer, {
       filename: file.name,
-      retailMarkupPct,
-      normalMarkupPct,
       uploadedBy: 'Nico Admin'
     });
 

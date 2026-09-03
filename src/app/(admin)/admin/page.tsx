@@ -35,10 +35,10 @@ interface DiffItem {
   sku: string;
   name: string;
   brand: string;
-  oldWholesale: number;
-  newWholesale: number;
-  oldRetailPrice: number;
-  newRetailPrice: number;
+  oldPrice: number;
+  newPrice: number;
+  oldReferential: number;
+  newReferential: number;
   priceDiff: number;
   isNew: boolean;
 }
@@ -50,7 +50,6 @@ interface UploadResult {
   updatedCount: number;
   createdCount: number;
   unchangedCount: number;
-  retailMarkupPct: number;
   diffs: DiffItem[];
 }
 
@@ -681,9 +680,9 @@ export default function AdminPage() {
                             <th className="p-3.5">Perfume</th>
                             <th className="p-3.5">Marca</th>
                             <th className="p-3.5">SKU</th>
-                            <th className="p-3.5">Costo Mayorista</th>
                             <th className="p-3.5">Precio Anterior</th>
-                            <th className="p-3.5">Precio Nuevo</th>
+                            <th className="p-3.5">Precio Nuevo (Excel)</th>
+                            <th className="p-3.5">Ref. Falabella (~23% OFF)</th>
                             <th className="p-3.5">Variación</th>
                           </tr>
                         </thead>
@@ -693,12 +692,14 @@ export default function AdminPage() {
                               <td className="p-3.5 font-medium text-white">{diff.name}</td>
                               <td className="p-3.5 text-amber-400">{diff.brand}</td>
                               <td className="p-3.5 font-mono text-[11px] text-slate-400">{diff.sku}</td>
-                              <td className="p-3.5 font-mono">{formatCLP(diff.newWholesale)}</td>
                               <td className="p-3.5 font-mono text-slate-400 line-through">
-                                {diff.oldRetailPrice > 0 ? formatCLP(diff.oldRetailPrice) : 'Nuevo'}
+                                {diff.oldPrice > 0 ? formatCLP(diff.oldPrice) : 'Nuevo'}
                               </td>
                               <td className="p-3.5 font-mono font-bold text-white">
-                                {formatCLP(diff.newRetailPrice)}
+                                {formatCLP(diff.newPrice)}
+                              </td>
+                              <td className="p-3.5 font-mono text-slate-400">
+                                {formatCLP(diff.newReferential)}
                               </td>
                               <td className="p-3.5 font-mono">
                                 {diff.priceDiff > 0 ? (
@@ -833,8 +834,8 @@ export default function AdminPage() {
                       <th className="p-3.5">Perfume</th>
                       <th className="p-3.5">Marca</th>
                       <th className="p-3.5">Familia</th>
-                      <th className="p-3.5">Costo Mayorista</th>
-                      <th className="p-3.5">Precio Retail</th>
+                      <th className="p-3.5">Precio Venta (Excel)</th>
+                      <th className="p-3.5">Ref. Falabella (Tachado)</th>
                       <th className="p-3.5">Stock</th>
                       <th className="p-3.5 text-right">Acción</th>
                     </tr>
@@ -845,8 +846,8 @@ export default function AdminPage() {
                         <td className="p-3.5 font-medium text-white max-w-xs truncate">{p.name}</td>
                         <td className="p-3.5 text-amber-400 font-semibold">{p.brand}</td>
                         <td className="p-3.5 text-slate-400">{p.family}</td>
-                        <td className="p-3.5 font-mono">{formatCLP(p.wholesale_price)}</td>
-                        <td className="p-3.5 font-mono font-bold text-white">{formatCLP(p.price)}</td>
+                        <td className="p-3.5 font-mono font-bold text-amber-400">{formatCLP(p.price)}</td>
+                        <td className="p-3.5 font-mono text-slate-400 line-through">{formatCLP(p.original_price)}</td>
                         <td className="p-3.5">
                           <span className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
                             p.stock > 10 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'

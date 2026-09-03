@@ -2,8 +2,6 @@ import * as XLSX from 'xlsx';
 import { supabaseAdmin } from './supabase-admin';
 
 export interface ProcessExcelOptions {
-  retailMarkupPct?: number; // default 48%
-  normalMarkupPct?: number; // default 30%
   uploadedBy?: string;
   filename?: string;
 }
@@ -12,10 +10,10 @@ export interface PriceDiffItem {
   sku: string;
   name: string;
   brand: string;
-  oldWholesale: number;
-  newWholesale: number;
-  oldRetailPrice: number;
-  newRetailPrice: number;
+  oldPrice: number;
+  newPrice: number;
+  oldReferential: number;
+  newReferential: number;
   priceDiff: number;
   isNew: boolean;
 }
@@ -27,8 +25,6 @@ export interface ExcelProcessingResult {
   updatedCount: number;
   createdCount: number;
   unchangedCount: number;
-  retailMarkupPct: number;
-  normalMarkupPct: number;
   diffs: PriceDiffItem[];
   error?: string;
 }
@@ -49,8 +45,6 @@ export async function processExcelBuffer(
   buffer: Buffer,
   options: ProcessExcelOptions = {}
 ): Promise<ExcelProcessingResult> {
-  const retailMarkup = 48; // Automatic 48% retail margin
-  const normalMarkup = 30; // Automatic 30% tachado margin
   const uploadedBy = options.uploadedBy ?? 'Nico Admin';
   const filename = options.filename ?? 'lista_precios.xlsx';
 
@@ -102,10 +96,10 @@ export async function processExcelBuffer(
     const rawSku = String(row[2] || '').trim();
     const rawEan = String(row[3] || '').trim();
     const rawFormat = String(row[5] || '').trim() || 'REGULAR';
-    const rawWholesale = Number(row[6]);
+    const rawPrice = Number(row[6]); // Exact final selling price from Excel
 
-    // Skip empty rows, header rows, or items without valid wholesale price
-    if (!rawName || rawName.toLowerCase() === 'nombre' || isNaN(rawWholesale) || rawWholesale <= 0) {
+    // Skip empty rows, sub-headers, or invalid prices
+    if (!rawName || rawName.toLowerCase() === 'nombre' || isNaN(rawPrice) || rawPrice <= 0) {
       continue;
     }
 
@@ -113,9 +107,11 @@ export async function processExcelBuffer(
     const rowSku = rawSku || `PERF-${r + 1}`;
     const rowId = `perf-${r + 1}`;
 
-    // Calculate retail price and original price
-    const retailPrice = Math.round((rawWholesale * (1 + retailMarkup / 100)) / 100) * 100;
-    const originalPrice = Math.round((retailPrice * (1 + normalMarkup / 100)) / 100) * 100;
+    // Final selling price is EXACTLY the price from the Excel
+    const sellingPrice = Math.round(rawPrice);
+    // Referential retail price (Falabella/Mall) with ~23% OFF badge
+    const originalPrice = Math.round((sellingPrice * 1.30) / 100) * 100;
+    const wholesalePrice = Math.round(sellingPrice * 0.70);
 
     // Match priority: SKU -> ID -> Full Name -> Clean Name
     const existing = 
@@ -125,19 +121,18 @@ export async function processExcelBuffer(
       nameMap.get(cleanTitle(rawName).toLowerCase());
 
     if (existing) {
-      const priceDiff = retailPrice - (existing.price || 0);
-      const wholesaleDiff = rawWholesale - (existing.wholesale_price || 0);
+      const priceDiff = sellingPrice - (existing.price || 0);
 
-      if (priceDiff !== 0 || wholesaleDiff !== 0) {
+      if (priceDiff !== 0) {
         updatedCount++;
         diffs.push({
           sku: existing.sku,
           name: existing.name,
           brand: existing.brand,
-          oldWholesale: existing.wholesale_price || 0,
-          newWholesale: rawWholesale,
-          oldRetailPrice: existing.price || 0,
-          newRetailPrice: retailPrice,
+          oldPrice: existing.price || 0,
+          newPrice: sellingPrice,
+          oldReferential: existing.original_price || 0,
+          newReferential: originalPrice,
           priceDiff,
           isNew: false
         });
@@ -157,8 +152,8 @@ export async function processExcelBuffer(
         volume: existing.volume || 100,
         concentration: existing.concentration || 'Eau de Parfum',
         family: existing.family || 'Oriental / Ámbar',
-        wholesale_price: rawWholesale,
-        price: retailPrice,
+        wholesale_price: wholesalePrice,
+        price: sellingPrice,
         original_price: originalPrice,
         stock: existing.stock ?? 15,
         top_notes: existing.top_notes || [],
@@ -186,11 +181,11 @@ export async function processExcelBuffer(
         sku: rowSku,
         name: title,
         brand,
-        oldWholesale: 0,
-        newWholesale: rawWholesale,
-        oldRetailPrice: 0,
-        newRetailPrice: retailPrice,
-        priceDiff: retailPrice,
+        oldPrice: 0,
+        newPrice: sellingPrice,
+        oldReferential: 0,
+        newReferential: originalPrice,
+        priceDiff: sellingPrice,
         isNew: true
       });
 
@@ -206,9 +201,9 @@ export async function processExcelBuffer(
         volume: 100,
         concentration: 'Eau de Parfum',
         family: 'Oriental / Ámbar',
-        price: retailPrice,
+        price: sellingPrice,
         original_price: originalPrice,
-        wholesale_price: rawWholesale,
+        wholesale_price: wholesalePrice,
         stock: 15,
         top_notes: ['Bergamota', 'Lavanda', 'Cardamomo'],
         heart_notes: ['Jazmín', 'Ámbar', 'Cedro'],
@@ -250,8 +245,8 @@ export async function processExcelBuffer(
     updated_count: updatedCount,
     created_count: createdCount,
     unchanged_count: unchangedCount,
-    markup_retail_pct: retailMarkup,
-    markup_normal_pct: normalMarkup,
+    markup_retail_pct: 0,
+    markup_normal_pct: 30,
     uploaded_by: uploadedBy,
     summary_json: {
       totalProcessed: validRowsCount,
@@ -269,8 +264,6 @@ export async function processExcelBuffer(
     updatedCount,
     createdCount,
     unchangedCount,
-    retailMarkupPct: retailMarkup,
-    normalMarkupPct: normalMarkup,
     diffs
   };
 }
